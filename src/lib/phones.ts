@@ -105,12 +105,12 @@ export function buildProductMessage(
     parts.push(`o ${model.name}`);
   }
   const details = parts.join(', ');
-  return `Olá! Vi ${details} no catálogo da CellShop. Gostaria de mais informações sobre esse aparelho.`;
+  return `Olá! Vi ${details} no catálogo da Mega Personalizados. Gostaria de mais informações sobre esse aparelho.`;
 }
 
 export function buildAvailabilityMessage(model: PhoneModel, variant?: PhoneVariant): string {
   const target = variant ? `${model.name} (${variant.storage} • ${variant.colorName})` : model.name;
-  return `Olá! Tenho interesse no ${target} e gostaria de consultar a reposição no catálogo da CellShop.`;
+  return `Olá! Tenho interesse no ${target} e gostaria de consultar a reposição no catálogo da Mega Personalizados.`;
 }
 
 interface FilterOptions {

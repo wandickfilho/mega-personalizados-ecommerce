@@ -4,8 +4,8 @@ import type { PhoneModel } from '@/lib/types';
  * �a�️ DADOS DE EXEMPLO (desenvolvimento).
  *
  * Estes modelos, preços e disponibilidades são apenas demonstrações de interface
- * e NÒO representam estoque real da CellShop Max. Substitua integralmente por
- * dados reais cadastrados. Enquanto `USING_SAMPLE_DATA` for `true`, a interface
+ * e NÃO representam estoque real da Mega Personalizados. Substitua integralmente
+ * por dados reais cadastrados. Enquanto `USING_SAMPLE_DATA` for `true`, a interface
  * exibe um aviso discreto de que os dados são de exemplo.
  *
  * As imagens ficam em `/public/imagens/produtos/` e podem ser referenciadas em
@@ -393,7 +393,7 @@ PHONES.push(
     name,
     brand,
     category,
-    description: 'Item demonstrativo do catálogo. Consulte disponibilidade, compatibilidade e condições com a CellShop.',
+    description: 'Item demonstrativo do catálogo. Consulte disponibilidade, compatibilidade e condições com a Mega Personalizados.',
     specs: [{ label: 'Informação comercial', value: 'Disponibilidade a confirmar' }],
     images: [],
     isNew: true,

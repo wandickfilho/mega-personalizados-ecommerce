@@ -1,48 +1,54 @@
 import Link from 'next/link';
-import { MapPin, Mail } from 'lucide-react';
+import { ArrowUpRight, Mail, MapPin, MessageCircle } from 'lucide-react';
+import { CATEGORIES } from '@/config/categories';
+import { CONTACT, SITE, WHATSAPP_ENABLED } from '@/config/site';
+import StoreHours from '@/components/ui/StoreHours';
 import BrandLogo from './BrandLogo';
 import { NAV_LINKS } from './navLinks';
-import InstagramIcon from '@/components/ui/InstagramIcon';
-import WhatsAppLink from '@/components/ui/WhatsAppLink';
-import { CONTACT, SITE, WHATSAPP_GENERAL_MESSAGE } from '@/config/site';
-import StoreHours from '@/components/ui/StoreHours';
 
 export default function Footer() {
   return (
-    <footer className="mt-auto bg-navy text-white/80">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-          {/* Marca */}
-          <div className="space-y-4 lg:col-span-2">
+    <footer className="relative overflow-hidden bg-navy text-white/70">
+      <div className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-royal/25 blur-3xl" />
+      <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.1fr]">
+          <div className="max-w-sm">
             <BrandLogo size="md" tone="light" />
-            <p className="max-w-sm text-sm leading-relaxed text-white/60">
-              {SITE.description}
-            </p>
-
-            <div className="flex flex-col gap-2 text-sm text-white/60">
-              <span className="flex items-start gap-2.5">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand" aria-hidden />
-                {CONTACT.address || 'Endereço em breve'}
-              </span>
-              {CONTACT.email && (
-                <a
-                  href={`mailto:${CONTACT.email}`}
-                  className="flex items-center gap-2.5 transition hover:text-white"
-                >
-                  <Mail className="h-4 w-4 shrink-0 text-brand" aria-hidden />
-                  {CONTACT.email}
-                </a>
-              )}
-            </div>
-            <StoreHours compact inverse className="max-w-sm" />
+            <p className="mt-5 text-sm leading-relaxed text-white/55">{SITE.description}</p>
+            <a href={CONTACT.mapsUrl} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white/65 transition hover:text-white">
+              <MapPin className="h-3.5 w-3.5 text-brand" aria-hidden />
+              {CONTACT.address}
+            </a>
           </div>
 
-          {/* Navegação */}
-          <div className="space-y-3">
+          <div>
+            <h3 className="font-display text-xs font-bold uppercase tracking-[0.2em] text-white">
+              Categorias
+            </h3>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {CATEGORIES.map((category) => (
+                <li key={category.id}>
+                  <Link
+                    href={`/?categoria=${category.id}#vitrine`}
+                    className="transition hover:text-white"
+                  >
+                    {category.shortName}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link href="/#categorias" className="font-semibold text-brand transition hover:text-white">
+                  Ver todas
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
             <h3 className="font-display text-xs font-bold uppercase tracking-[0.2em] text-white">
               Navegação
             </h3>
-            <ul className="space-y-2 text-sm text-white/60">
+            <ul className="mt-4 space-y-2.5 text-sm">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="transition hover:text-white">
@@ -53,49 +59,50 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Atendimento & Redes */}
-          <div className="space-y-3">
+          <div>
             <h3 className="font-display text-xs font-bold uppercase tracking-[0.2em] text-white">
               Atendimento
             </h3>
-            <ul className="space-y-2.5 text-sm text-white/60">
+            <ul className="mt-4 space-y-3 text-sm">
               <li>
-                <WhatsAppLink
-                  message={WHATSAPP_GENERAL_MESSAGE}
-                  showIcon
-                  iconClassName="h-4 w-4 text-brand"
+                <Link
+                  href={WHATSAPP_ENABLED && CONTACT.whatsapp ? `https://wa.me/${CONTACT.whatsapp}` : '/contato'}
                   className="inline-flex items-center gap-2.5 transition hover:text-white"
                 >
-                  WhatsApp
-                </WhatsAppLink>
+                  <MessageCircle className="h-4 w-4 text-brand" aria-hidden />
+                  {WHATSAPP_ENABLED ? 'WhatsApp' : 'Solicitar orçamento'}
+                </Link>
               </li>
-              <li>
-                {CONTACT.instagramUrl ? (
+              {CONTACT.email ? (
+                <li>
                   <a
-                    href={CONTACT.instagramUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={`mailto:${CONTACT.email}`}
                     className="inline-flex items-center gap-2.5 transition hover:text-white"
                   >
-                    <InstagramIcon className="h-4 w-4 text-brand" />
-                    Instagram
+                    <Mail className="h-4 w-4 text-brand" aria-hidden />
+                    {CONTACT.email}
                   </a>
-                ) : (
-                  <span className="inline-flex items-center gap-2.5 text-white/40">
-                    <InstagramIcon className="h-4 w-4 text-brand/60" />
-                    Instagram em breve
-                  </span>
-                )}
+                </li>
+              ) : (
+                <li className="text-white/35">E-mail em breve</li>
+              )}
+              <li>
+                <Link href="/contato" className="inline-flex items-center gap-1.5 font-semibold text-white transition hover:text-brand">
+                  Fale com a Mega
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+                </Link>
               </li>
             </ul>
           </div>
+
+          <StoreHours compact inverse />
         </div>
 
-        <div className="mt-14 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/45 sm:flex-row sm:items-center">
+        <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-6 text-[11px] text-white/40 sm:flex-row sm:items-center">
           <p>
             © {new Date().getFullYear()} {SITE.name}. Todos os direitos reservados.
           </p>
-          <p>Catálogo digital — atendimento e vendas pelo WhatsApp.</p>
+          <p>Personalizados sob medida · Sousa-PB</p>
         </div>
       </div>
     </footer>

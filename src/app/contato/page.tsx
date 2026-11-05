@@ -1,113 +1,201 @@
 import type { Metadata } from 'next';
-import { Clock, Mail, MapPin, MessageCircle } from 'lucide-react';
+import type { ReactNode } from 'react';
+import Link from 'next/link';
+import {
+  ArrowRight,
+  Check,
+  Clock,
+  Image as ImageIcon,
+  Mail,
+  MapPin,
+  MessageCircle,
+  PackageSearch,
+  Sparkles,
+} from 'lucide-react';
 import InstagramIcon from '@/components/ui/InstagramIcon';
-import WhatsAppButton from '@/components/ui/WhatsAppButton';
-import SampleDataNotice from '@/components/phones/SampleDataNotice';
-import { CONTACT, SITE, WHATSAPP_GENERAL_MESSAGE } from '@/config/site';
+import { CONTACT, SITE, WHATSAPP_ENABLED } from '@/config/site';
+import StoreHours from '@/components/ui/StoreHours';
 
 export const metadata: Metadata = {
-  title: `Contato | ${SITE.name}`,
+  title: 'Contato',
   description:
-    'Fale com a CellShop pelo WhatsApp para tirar dúvidas sobre modelos, valores e disponibilidade.',
+    'Fale com a Mega Personalizados e solicite um orçamento para canecas, capinhas, bonés, brindes corporativos e outros personalizados.',
 };
 
-const INFO = [
+const CHECKLIST = [
   {
-    icon: MapPin,
-    label: 'Endereço',
-    value: CONTACT.address || 'Endereço em breve',
+    icon: PackageSearch,
+    title: 'O que você quer personalizar',
+    description: 'Produto, quantidade e para quem é o projeto.',
   },
   {
-    icon: Clock,
-    label: 'Horário de funcionamento',
-    value: CONTACT.hours || 'Horário em breve',
+    icon: ImageIcon,
+    title: 'Referências visuais',
+    description: 'Logo, frases, cores ou imagens que ajudem a traduzir a sua ideia.',
   },
   {
-    icon: Mail,
-    label: 'E-mail',
-    value: CONTACT.email || 'E-mail em breve',
+    icon: Sparkles,
+    title: 'Ocasião e prazo desejado',
+    description: 'Presente, evento, equipe ou campanha — quanto antes melhor.',
   },
 ];
 
 export default function ContactPage() {
+  const hasChannel = WHATSAPP_ENABLED || Boolean(CONTACT.email) || Boolean(CONTACT.instagramUrl);
+
   return (
-    <div className="bg-white">
-      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-        <header className="max-w-2xl">
+    <div className="bg-canvas">
+      <div className="section-shell py-12 sm:py-16 lg:py-20">
+        <header className="max-w-3xl">
           <span className="section-kicker">Contato</span>
-          <h1 className="section-title mt-3">Fale com a CellShop</h1>
-          <p className="mt-4 text-sm leading-relaxed text-graphite/60">
-            O atendimento é feito pelo WhatsApp. Envie sua dúvida sobre modelos, valores e
-            disponibilidade e a loja responde o mais rápido possível.
+          <h1 className="section-title mt-4">
+            Vamos tirar sua ideia <span className="text-brand">do papel.</span>
+          </h1>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-graphite/60 sm:text-base">
+            Conte para a {SITE.shortName} o que você imagina. A orientação sobre material,
+            técnica e acabamento faz parte do projeto.
           </p>
-          <div className="mt-5">
-            <SampleDataNotice />
-          </div>
         </header>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_360px]">
-          <div className="rounded-2xl border border-line bg-mist/50 p-6 sm:p-8">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-navy text-white">
-              <MessageCircle className="h-5 w-5" aria-hidden />
+        <div className="mt-10 grid gap-5 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8">
+          <section className="rounded-2xl border border-line bg-surface p-6 shadow-soft sm:p-8">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-navy text-white">
+                <Check className="h-5 w-5" aria-hidden />
+              </span>
+              <div>
+                <h2 className="font-display text-lg font-extrabold tracking-[-0.03em] text-navy">
+                  Antes de falar com a gente
+                </h2>
+                <p className="text-[11px] text-graphite/45">Ter essas informações agiliza o orçamento.</p>
+              </div>
+            </div>
+
+            <ul className="mt-6 space-y-3">
+              {CHECKLIST.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <li key={item.title} className="flex gap-3 rounded-xl bg-mist/60 p-3.5">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface text-brand shadow-soft">
+                      <Icon className="h-4 w-4" aria-hidden />
+                    </span>
+                    <div>
+                      <p className="text-xs font-bold text-navy">{item.title}</p>
+                      <p className="mt-0.5 text-[11px] leading-relaxed text-graphite/55">
+                        {item.description}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <div className="mt-6 flex items-center gap-2 rounded-xl border border-line bg-canvas px-4 py-3 text-[11px] text-graphite/55">
+              <Clock className="h-4 w-4 shrink-0 text-brand" aria-hidden />
+              O prazo é combinado após a aprovação da arte e do escopo do projeto.
+            </div>
+          </section>
+
+          <section className="rounded-2xl bg-navy p-6 text-white shadow-premium sm:p-8">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-white/65">
+              <MessageCircle className="h-3.5 w-3.5 text-[#ff6b78]" aria-hidden />
+              Canais oficiais
             </span>
-            <h2 className="mt-5 font-display text-xl font-bold text-navy">
-              Atendimento pelo WhatsApp
-            </h2>
-            <p className="mt-2 max-w-md text-sm leading-relaxed text-graphite/60">
-              Toque no botão abaixo para iniciar uma conversa. Você pode perguntar sobre qualquer
-              aparelho do catálogo.
+            <h2 className="mt-5 font-display text-2xl font-extrabold tracking-[-0.04em]">Visite nossa loja.</h2>
+            <p className="mt-3 text-sm leading-relaxed text-white/55">
+              Estamos na Rua Coronel José Vicente, 52, no Centro de Sousa. Os canais digitais são publicados apenas quando confirmados.
             </p>
-            <div className="mt-6">
-              <WhatsAppButton
-                message={WHATSAPP_GENERAL_MESSAGE}
-                label="Iniciar conversa"
-                className="px-6 py-3.5 text-base"
+
+            <div className="mt-6 space-y-2.5">
+              <ChannelRow
+                icon={<MessageCircle className="h-4 w-4" />}
+                label="WhatsApp"
+                value={WHATSAPP_ENABLED ? 'Disponível' : 'Em breve'}
+                href={WHATSAPP_ENABLED ? `https://wa.me/${CONTACT.whatsapp}` : undefined}
+              />
+              <ChannelRow
+                icon={<InstagramIcon className="h-4 w-4" />}
+                label="Instagram"
+                value={CONTACT.instagramUrl ? `@${SITE.instagramHandle}` : 'Em breve'}
+                href={CONTACT.instagramUrl || undefined}
+              />
+              <ChannelRow
+                icon={<Mail className="h-4 w-4" />}
+                label="E-mail"
+                value={CONTACT.email || 'Em breve'}
+                href={CONTACT.email ? `mailto:${CONTACT.email}` : undefined}
+              />
+              <ChannelRow
+                icon={<MapPin className="h-4 w-4" />}
+                label="Localização"
+                value={CONTACT.address}
+                href={CONTACT.mapsUrl}
               />
             </div>
-          </div>
 
-          <div className="space-y-3">
-            {INFO.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={item.label}
-                  className="flex items-start gap-3 rounded-2xl border border-line bg-white p-4 shadow-soft"
-                >
-                  <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-mist text-navy">
-                    <Icon className="h-4 w-4" aria-hidden />
-                  </span>
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-graphite/45">
-                      {item.label}
-                    </p>
-                    <p className="text-sm text-graphite/75">{item.value}</p>
-                  </div>
-                </div>
-              );
-            })}
+            <StoreHours compact inverse className="mt-5" />
 
-            {CONTACT.instagramUrl ? (
-              <a
-                href={CONTACT.instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-2xl border border-line bg-white p-4 shadow-soft transition hover:border-navy/30"
-              >
-                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-mist text-navy">
-                  <InstagramIcon className="h-4 w-4" />
-                </span>
-                <div>
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-graphite/45">
-                    Instagram
-                  </p>
-                  <p className="text-sm text-graphite/75">Seguir a {SITE.name}</p>
-                </div>
-              </a>
-            ) : null}
-          </div>
+            {!hasChannel && (
+              <p className="mt-5 rounded-xl border border-white/10 bg-white/5 p-3 text-[10px] leading-relaxed text-white/40">
+                Nenhum contato fictício é exibido. Os canais serão publicados aqui assim que
+                forem confirmados.
+              </p>
+            )}
+
+            <Link
+              href="/#categorias"
+              className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-white transition hover:text-[#ff6b78]"
+            >
+              Explorar categorias enquanto isso
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+            </Link>
+          </section>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ChannelRow({
+  icon,
+  label,
+  value,
+  href,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  href?: string;
+}) {
+  const content = (
+    <>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-[#ff8a94]">
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/35">{label}</p>
+        <p className="truncate text-xs font-semibold text-white/80">{value}</p>
+      </div>
+      {href && <ArrowRight className="h-3.5 w-3.5 text-white/30" aria-hidden />}
+    </>
+  );
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        target={href.startsWith('http') ? '_blank' : undefined}
+        rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+        className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3 transition hover:border-white/20 hover:bg-white/[0.08]"
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
+      {content}
     </div>
   );
 }

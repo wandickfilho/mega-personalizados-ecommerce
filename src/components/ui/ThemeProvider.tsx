@@ -11,7 +11,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
-const STORAGE_KEY = 'cellshop-theme';
+const STORAGE_KEY = 'mega-theme';
 
 function getResolvedTheme(preference: ThemePreference): 'light' | 'dark' {
   if (preference === 'dark') return 'dark';

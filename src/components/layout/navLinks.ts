@@ -5,8 +5,10 @@ export interface NavLink {
 
 export const NAV_LINKS: NavLink[] = [
   { label: 'Início', href: '/' },
-  { label: 'Celulares', href: '/celulares' },
-  { label: 'Marcas', href: '/marcas' },
-  { label: 'Sobre nós', href: '/sobre' },
+  { label: 'Categorias', href: '/#categorias' },
+  { label: 'Produção', href: '/#producao' },
+  { label: 'Studio', href: '/#personalizacao' },
+  { label: 'Como funciona', href: '/#como-funciona' },
+  { label: 'Corporativo', href: '/#corporativo' },
   { label: 'Contato', href: '/contato' },
 ];

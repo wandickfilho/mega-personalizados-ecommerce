@@ -6,22 +6,32 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        navy: { DEFAULT: 'var(--theme-navy)', 700: 'var(--theme-navy-700)', 600: 'var(--theme-navy-600)' },
-        graphite: 'var(--theme-graphite)',
-        mist: 'var(--theme-mist)',
-        brand: { DEFAULT: 'var(--theme-brand)', dark: 'var(--theme-brand-dark)' },
-        line: 'var(--theme-line)',
-        ink: 'var(--theme-ink)',
+        navy: {
+          DEFAULT: 'rgb(var(--theme-navy-rgb) / <alpha-value>)',
+          700: 'rgb(var(--theme-navy-700-rgb) / <alpha-value>)',
+          600: 'rgb(var(--theme-navy-600-rgb) / <alpha-value>)',
+        },
+        royal: 'rgb(var(--theme-royal-rgb) / <alpha-value>)',
+        graphite: 'rgb(var(--theme-graphite-rgb) / <alpha-value>)',
+        mist: 'rgb(var(--theme-mist-rgb) / <alpha-value>)',
+        canvas: 'rgb(var(--theme-canvas-rgb) / <alpha-value>)',
+        surface: 'rgb(var(--theme-surface-rgb) / <alpha-value>)',
+        brand: {
+          DEFAULT: 'rgb(var(--theme-brand-rgb) / <alpha-value>)',
+          dark: 'rgb(var(--theme-brand-dark-rgb) / <alpha-value>)',
+        },
+        line: 'rgb(var(--theme-line-rgb) / <alpha-value>)',
+        ink: 'rgb(var(--theme-ink-rgb) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['var(--font-sans)'],
         display: ['var(--font-display)'],
       },
       boxShadow: {
-        soft: '0 1px 2px rgba(45, 23, 92, 0.03), 0 12px 32px -18px rgba(65, 34, 125, 0.18)',
-        hover: '0 4px 10px rgba(45, 23, 92, 0.06), 0 28px 54px -25px rgba(84, 43, 160, 0.32)',
-        float: '0 22px 50px -18px rgba(59, 29, 117, 0.38)',
-        premium: '0 4px 14px rgba(54, 29, 99, 0.06), 0 30px 70px -30px rgba(72, 36, 140, 0.28)',
+        soft: '0 1px 2px rgba(10, 23, 48, 0.03), 0 14px 34px -22px rgba(10, 23, 48, 0.22)',
+        hover: '0 4px 12px rgba(10, 23, 48, 0.05), 0 30px 60px -28px rgba(10, 23, 48, 0.34)',
+        float: '0 24px 54px -18px rgba(10, 23, 48, 0.38)',
+        premium: '0 4px 16px rgba(10, 23, 48, 0.05), 0 34px 80px -34px rgba(10, 23, 48, 0.3)',
       },
     },
   },

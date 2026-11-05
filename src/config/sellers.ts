@@ -6,9 +6,16 @@ export interface Seller {
   active: boolean;
 }
 
-// Fotos podem ser cadastradas posteriormente; os avatares visuais são usados enquanto isso.
+/**
+ * Atendimento da Mega. Nenhum número ou contato da operação anterior é
+ * reutilizado. Cadastre os canais oficiais quando forem confirmados.
+ */
 export const SELLERS: Seller[] = [
-  { id: 'vitoria', name: 'Vitória', photo: null, whatsappNumber: '5583991704298', active: true },
-  { id: 'erika', name: 'Erika', photo: null, whatsappNumber: '5583991131998', active: true },
-  { id: 'emilly', name: 'Emilly', photo: null, whatsappNumber: '5583996646676', active: true },
+  {
+    id: 'equipe-mega',
+    name: 'Equipe Mega',
+    photo: null,
+    whatsappNumber: '',
+    active: false,
+  },
 ];

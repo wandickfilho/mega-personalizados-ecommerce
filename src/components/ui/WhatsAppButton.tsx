@@ -14,7 +14,7 @@ const DISABLED_HINT = 'Atendimento via WhatsApp será ativado em breve.';
 
 const VARIANTS: Record<NonNullable<WhatsAppButtonProps['variant']>, string> = {
   solid:
-    'premium-action inline-flex items-center justify-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,0.55)] transition hover:-translate-y-0.5 hover:bg-brand-dark hover:shadow-hover active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
+    'premium-action inline-flex items-center justify-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_-12px_rgba(226,31,50,0.55)] transition hover:-translate-y-0.5 hover:bg-brand-dark hover:shadow-hover active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
   outline:
     'premium-action inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/15 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy-700',
   ghost:

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Mega Eletrônicos & Personalizados">
+  <rect width="64" height="64" rx="16" fill="#0B1B3A"/>
+  <path d="M14 47V17l18 18 18-18v30" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M14 47h36" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+  <rect x="47" y="10" width="9" height="9" rx="2" fill="#E21F32"/>
+</svg>

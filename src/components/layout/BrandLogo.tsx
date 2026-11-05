@@ -10,68 +10,29 @@ interface BrandLogoProps {
   className?: string;
 }
 
-const markSize = {
-  sm: 'h-9',
-  md: 'h-11',
-  lg: 'h-16',
-};
-
-const textSize = {
-  sm: 'text-sm',
-  md: 'text-base',
-  lg: 'text-xl',
-};
+const logoSize = { sm: 'h-10 w-10', md: 'h-12 w-12', lg: 'h-16 w-16' };
 
 export default function BrandLogo({
   size = 'md',
-  tone = 'light',
-  withWordmark = false,
+  tone = 'dark',
+  withWordmark = true,
   className,
 }: BrandLogoProps) {
   return (
     <Link
       href="/"
       aria-label={`${SITE.name} — Início`}
-      className={cn('group inline-flex items-center gap-3', className)}
+      className={cn('group inline-flex items-center gap-2.5', className)}
     >
-      <span
-        className={cn(
-          'inline-flex shrink-0 items-center',
-          markSize[size]
-        )}
-      >
-        {/* Logo para o modo claro */}
-        <Image
-          src="/logos/logo-cellshop-light.png"
-          alt={SITE.name}
-          width={2172}
-          height={724}
-          className="block h-full w-auto object-contain object-left dark:hidden"
-          priority={size !== 'lg'}
-        />
-
-        {/* Logo para o modo escuro */}
-        <Image
-          src="/logos/logo-cellshop-dark.png"
-          alt={SITE.name}
-          width={2172}
-          height={724}
-          className="hidden h-full w-auto object-contain object-left dark:block"
-          priority={size !== 'lg'}
-        />
-      </span>
-
-      {withWordmark && (
-        <span
-          className={cn(
-            'font-display font-bold leading-none tracking-tight',
-            textSize[size],
-            tone === 'light' ? 'text-white' : 'text-navy'
-          )}
-        >
-          CellShop
-        </span>
-      )}
+      <Image
+        src={SITE.logo}
+        alt=""
+        width={128}
+        height={128}
+        priority={size !== 'sm'}
+        className={cn('shrink-0 object-contain transition duration-300 group-hover:scale-[1.03]', logoSize[size])}
+      />
+      {withWordmark && <span className={cn('hidden font-display text-sm font-bold tracking-[-0.03em] sm:inline', tone === 'light' ? 'text-white' : 'text-navy')}>Mega Personalizados</span>}
     </Link>
   );
 }
