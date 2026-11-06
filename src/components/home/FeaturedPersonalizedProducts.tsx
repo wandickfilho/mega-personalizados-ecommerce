@@ -9,10 +9,8 @@ import {
   Layers3,
 } from 'lucide-react';
 
-import {
-  PERSONALIZED_PRODUCTS,
-  type PersonalizedProduct,
-} from '@/data/personalizedProducts';
+import { PERSONALIZED_PRODUCTS, type PersonalizedProduct } from '@/data/personalizedProducts';
+import PersonalizedAssistantBanner from './PersonalizedAssistantBanner';
 
 const PRODUCT_ORDER = [
   'mug',
@@ -216,16 +214,19 @@ export default function FeaturedPersonalizedProducts({
         </header>
 
         {products.length ? (
-          <div className="mega-product-grid">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-              />
-            ))}
+          <>
+            <PersonalizedAssistantBanner />
+            <div className="mega-product-grid">
+              {products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                />
+              ))}
 
-            {!term && <OtherProductsCard />}
-          </div>
+              {!term && <OtherProductsCard />}
+            </div>
+          </>
         ) : (
           <p className="mega-empty-search">
             Nenhum produto encontrado para “{query}”.

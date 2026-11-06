@@ -235,6 +235,101 @@ html[data-theme="dark"] .theme-option-selected {
 @media (max-width: 767px) { .mega-topbar .section-shell { justify-content: center; font-size: .58rem; }.mega-topbar .section-shell span:first-child { white-space: nowrap; }.mega-mainbar-content { min-height: 4.5rem; }.mega-mainbar-content > .group img { width: 5rem; height: 3.5rem; }.mega-studio-section { padding: 2.5rem 0 3rem; }.mega-studio-intro { margin-bottom: 1.7rem; }.mega-studio-visual { grid-template-columns: 5.8rem 1fr; gap: .7rem; }.mega-orbit-cube { width: 5rem; height: 5rem; }.mega-orbit-cube::before { width: 5.8rem; height: 1.7rem; border-width: 3px; }.mega-orbit-cube svg { width: 2.5rem; }.mega-benefit-list span { min-width: 0; font-size: .66rem; padding: .48rem .55rem; }.mega-product-banner { min-height: 14rem; grid-template-columns: minmax(0, 1.05fr) minmax(38%, .95fr); }.mega-product-copy { padding: 1.15rem 0 1.1rem 1.15rem; }.mega-product-copy h2 { font-size: 1.2rem; }.mega-product-copy p { font-size: .7rem; }.mega-product-button, .mega-other-button { font-size: .66rem; padding: .66rem .75rem; }.mega-gift-visual svg { width: 6.4rem; height: 6.4rem; } }
 @media (prefers-reduced-motion: reduce) { .mega-product-banner, .mega-product-button, .mega-other-button, .mega-product-model .model-thumbnail canvas, .mega-nav-link, .mega-3d-link { transition: none !important; } }
 
+/* Banner de personalização assistida por vendedor (Home — Mega Custom Studio). */
+.mega-assistant-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background: #06183e;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 1rem;
+  padding: 2rem 1.5rem;
+  color: #fff;
+}
+.mega-assistant-copy { display: flex; flex-direction: column; gap: 0.75rem; }
+.mega-assistant-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ff2448;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.mega-assistant-title {
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 1.875rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+}
+.mega-assistant-description {
+  margin: 0;
+  color: rgb(255 255 255 / 0.92);
+  font-size: clamp(0.95rem, 1.4vw, 1.06rem);
+  font-weight: 600;
+  line-height: 1.5;
+}
+.mega-assistant-aux {
+  margin: 0;
+  color: rgb(255 255 255 / 0.65);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.mega-assistant-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  border: 0;
+  border-radius: 0.75rem;
+  background: #25d366;
+  padding: 0.95rem 1.25rem;
+  color: #06183e;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+  box-shadow: 0 10px 20px rgb(37 211 102 / 0.35);
+  text-decoration: none;
+}
+.mega-assistant-button:hover { background: #1ebe59; }
+.mega-assistant-button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.mega-assistant-button:active { transform: scale(0.98); }
+.mega-assistant-button[role="button"] {
+  cursor: not-allowed;
+  opacity: 0.7;
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .mega-assistant-banner {
+    flex-direction: row;
+    align-items: center;
+    gap: 2rem;
+    padding: 2.5rem 2.25rem;
+  }
+  .mega-assistant-copy { flex: 1; gap: 0.85rem; }
+  .mega-assistant-button {
+    width: auto;
+    padding: 1rem 1.5rem;
+    flex-shrink: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mega-assistant-button { transition: none !important; }
+  .mega-assistant-button:active { transform: none !important; }
+}
+
 /* Editorial home hero, layered after the main commerce navigation. */
 .mega-editorial-hero { overflow: hidden; background: #f3f5ff; padding: clamp(1.25rem, 2.5vw, 2.35rem) clamp(.75rem, 4.7vw, 4.6rem); }.mega-editorial-shell { position: relative; isolation: isolate; max-width: 90rem; min-height: 42rem; margin: 0 auto; overflow: hidden; border: 1px solid #f0dce2; border-radius: 1.55rem; background: linear-gradient(112deg, #fffdfd 0%, #fff9fb 56%, #f8f8ff 100%); box-shadow: 0 18px 45px rgb(62 75 117 / .12); }.mega-editorial-shell::before { position: absolute; z-index: -1; left: 12%; top: .4rem; color: rgb(181 0 36 / .035); content: "MEGA"; font-family: var(--font-display); font-size: clamp(13rem, 29vw, 30rem); font-weight: 800; letter-spacing: -.11em; line-height: .85; }.mega-editorial-shell::after { position: absolute; z-index: -1; inset: auto 0 0; height: 32%; background: linear-gradient(to top, rgb(255 255 255 / .98), transparent); content: ""; pointer-events: none; }.mega-editorial-nav { position: relative; z-index: 6; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 5.1rem; padding: 0 clamp(1.25rem, 3.5vw, 3.8rem); }.mega-editorial-brand { display: inline-flex; align-items: center; gap: .6rem; color: #b50024; font-size: .69rem; font-weight: 800; letter-spacing: .18em; white-space: nowrap; }.mega-editorial-brand i { width: .62rem; height: .62rem; background: #ff2448; clip-path: polygon(50% 0, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0 50%, 37% 37%); }.mega-editorial-links { display: flex; align-items: center; gap: clamp(1rem, 2.3vw, 2.5rem); }.mega-editorial-links a { color: #171521; font-size: .78rem; font-weight: 600; white-space: nowrap; }.mega-editorial-links a:hover { color: #b50024; }.mega-editorial-location { justify-self: end; display: inline-flex; align-items: center; gap: .55rem; color: #262332; font-size: .76rem; font-weight: 600; white-space: nowrap; }.mega-editorial-location b { width: .6rem; height: .6rem; border-radius: 50%; background: #16d74a; box-shadow: 0 0 0 3px rgb(22 215 74 / .1); }.mega-editorial-title { position: absolute; z-index: 1; top: 6.8rem; left: 50%; display: grid; justify-items: center; width: 88%; transform: translateX(-50%); }.mega-editorial-title strong { color: #b50024; font-family: var(--font-display); font-size: clamp(7rem, 17.1vw, 16rem); font-weight: 800; letter-spacing: -.105em; line-height: .72; }.mega-editorial-title span { margin-top: 1.25rem; color: #071a42; font-family: var(--font-display); font-size: clamp(1.1rem, 2.45vw, 2.3rem); font-weight: 800; letter-spacing: clamp(.35rem, 1.55vw, 1.48rem); line-height: 1; text-indent: clamp(.35rem, 1.55vw, 1.48rem); }.mega-editorial-dots { position: absolute; z-index: 2; left: 50%; top: 20.7rem; width: 20rem; height: 18rem; opacity: .68; background-image: radial-gradient(circle, rgb(255 36 72 / .52) 1.15px, transparent 1.4px); background-size: 7px 7px; mask-image: radial-gradient(ellipse at center, #000 12%, rgb(0 0 0 / .8) 46%, transparent 73%); transform: translateX(-50%); }.mega-editorial-product { position: absolute; z-index: 3; left: 50%; top: 10rem; width: clamp(15rem, 25vw, 23rem); height: clamp(25rem, 38vw, 35rem); overflow: hidden; border-radius: 48% 48% 32% 32%; background: #f5eff0; box-shadow: 0 20px 35px rgb(66 44 51 / .2); transform: translateX(-50%) rotate(-8deg); }.mega-editorial-product video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }.mega-editorial-product button { position: absolute; left: 50%; top: 58%; display: grid; width: 3.2rem; height: 3.2rem; place-items: center; border: 0; border-radius: 50%; background: rgb(255 255 255 / .93); color: #ff2448; opacity: 0; transform: translate(-50%, -50%); transition: opacity 200ms ease; }.mega-editorial-product:hover button:has(svg), .mega-editorial-product button:focus-visible { opacity: 1; }.mega-editorial-copy { position: absolute; z-index: 4; left: clamp(1.6rem, 7.5vw, 7rem); top: 23rem; width: 16rem; }.mega-editorial-copy > i { display: block; width: 2.7rem; height: 3px; background: #e6002c; }.mega-editorial-copy p { margin: 1.45rem 0 0; color: #181625; font-size: clamp(1rem, 1.35vw, 1.22rem); font-weight: 600; line-height: 1.4; }.mega-editorial-copy a { display: inline-flex; align-items: center; gap: .48rem; margin-top: 2rem; color: #b50024; font-size: .85rem; font-weight: 800; }.mega-editorial-copy a:hover svg { transform: translateX(4px); }.mega-editorial-categories { position: absolute; z-index: 4; right: clamp(1.6rem, 7.5vw, 7rem); top: 22.2rem; display: grid; gap: .5rem; }.mega-editorial-categories a { position: relative; color: #9a9aa9; font-size: .95rem; font-weight: 600; line-height: 1.35; }.mega-editorial-categories a:hover { color: #b50024; }.mega-editorial-categories a.active { color: #b50024; font-weight: 800; }.mega-editorial-categories a.active::before { position: absolute; left: -1.25rem; top: .06rem; width: 3px; height: 1.1rem; border-radius: 5px; background: #e6002c; content: ""; }.mega-editorial-benefits { position: absolute; z-index: 5; right: 0; bottom: 0; left: 0; display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; min-height: 5.35rem; padding: 0 clamp(1.5rem, 5vw, 5.8rem); }.mega-editorial-benefits span { display: inline-flex; align-items: center; justify-content: center; gap: .6rem; color: #6c6b7e; font-size: .73rem; font-weight: 700; white-space: nowrap; }.mega-editorial-benefits svg { width: 1.35rem; color: #717185; stroke-width: 1.7; }.mega-editorial-title, .mega-editorial-product, .mega-editorial-copy, .mega-editorial-categories { animation: mega-editorial-enter 650ms cubic-bezier(.22, 1, .36, 1) both; }.mega-editorial-product { animation-delay: 100ms; }.mega-editorial-copy, .mega-editorial-categories { animation-delay: 180ms; } @keyframes mega-editorial-enter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; } }.mega-editorial-product { animation-name: mega-editorial-product-enter; } @keyframes mega-editorial-product-enter { from { opacity: 0; transform: translateX(-50%) translateY(24px) rotate(-8deg) scale(.96); } to { opacity: 1; transform: translateX(-50%) rotate(-8deg); } }
 @media (max-width: 1023px) { .mega-editorial-shell { min-height: 41rem; }.mega-editorial-copy { left: 2.5rem; }.mega-editorial-categories { right: 2.5rem; }.mega-editorial-links { gap: 1rem; }.mega-editorial-product { width: 17rem; height: 29rem; } }
