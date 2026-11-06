@@ -10,7 +10,7 @@ interface BrandLogoProps {
   className?: string;
 }
 
-const logoSize = { sm: 'h-10 w-10', md: 'h-12 w-12', lg: 'h-16 w-16' };
+const logoSize = { sm: 'h-10 w-10', md: 'h-14 w-14', lg: 'h-20 w-28' };
 
 export default function BrandLogo({
   size = 'md',

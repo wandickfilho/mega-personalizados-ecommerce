@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const ITEMS = [
-  { title: 'Capinhas personalizadas', description: 'Proteção e identidade para acompanhar o seu dia.', src: '/videos/produtosCategoriaHome/capinhaCelular1.mp4', href: '/?categoria=capinhas-celular#vitrine' },
-  { title: 'Capinhas com a sua arte', description: 'Sua imagem, frase ou marca em uma peça única.', src: '/videos/produtosCategoriaHome/capinhaCelular2.mp4', href: '/?categoria=capinhas-celular#vitrine' },
-  { title: 'Chaveiro personalizado', description: 'Um detalhe pequeno para levar a sua ideia por perto.', src: '/videos/produtosCategoriaHome/chaveiro1.mp4', href: '/?categoria=chaveiros#vitrine' },
-  { title: 'Garrafa personalizada', description: 'Mais personalidade em cada escolha do dia a dia.', src: '/videos/produtosCategoriaHome/garrafa1.mp4', href: '/#vitrine' },
-  { title: 'Garrafa com sua identidade', description: 'Um presente ou item especial feito para você.', src: '/videos/produtosCategoriaHome/garrafa2.mp4', href: '/#vitrine' },
+  { title: 'Capinhas personalizadas', description: 'Proteção e identidade para acompanhar o seu dia.', src: '/videos/produtosCategoriaHome/capinhaCelular1.mp4', href: '/personalizados/capinha-identidade' },
+  { title: 'Capinhas com a sua arte', description: 'Sua imagem, frase ou marca em uma peça única.', src: '/videos/produtosCategoriaHome/capinhaCelular2.mp4', href: '/personalizados/capinha-identidade' },
+  { title: 'Chaveiro personalizado', description: 'Um detalhe pequeno para levar a sua ideia por perto.', src: '/videos/produtosCategoriaHome/chaveiro1.mp4', href: '/personalizados/outros' },
+  { title: 'Garrafa personalizada', description: 'Mais personalidade em cada escolha do dia a dia.', src: '/videos/produtosCategoriaHome/garrafa1.mp4', href: '/personalizados/garrafa-personalizada' },
+  { title: 'Garrafa com sua identidade', description: 'Um presente ou item especial feito para você.', src: '/videos/produtosCategoriaHome/garrafa2.mp4', href: '/personalizados/garrafa-personalizada' },
 ] as const;
 
 function relativePosition(index: number, active: number) {
@@ -36,7 +36,7 @@ export default function Personalized3DCarousel() {
   const runningAnimations = useRef<Animation[]>([]);
   const canAdvance = visible && documentVisible && !hovered && !reducedMotion;
 
-  function move(direction: -1 | 1) {
+  const move = useCallback((direction: -1 | 1) => {
     if (transitionLock.current) return;
     runningAnimations.current.forEach((animation) => animation.cancel());
     previousStyles.current = new Map(
@@ -49,9 +49,9 @@ export default function Personalized3DCarousel() {
     transitionLock.current = true;
     setIsTransitioning(true);
     setActive((current) => (current + direction + ITEMS.length) % ITEMS.length);
-  }
-  const previous = () => move(-1);
-  const next = () => move(1);
+  }, []);
+  const previous = useCallback(() => move(-1), [move]);
+  const next = useCallback(() => move(1), [move]);
   function select(index: number) {
     if (index === active || isTransitioning) return;
     const position = relativePosition(index, active);
@@ -111,7 +111,7 @@ export default function Personalized3DCarousel() {
     if (!canAdvance) return;
     const timer = window.setInterval(next, 6000);
     return () => window.clearInterval(timer);
-  }, [canAdvance, active]);
+  }, [canAdvance, active, next]);
 
   function onKeyDown(event: React.KeyboardEvent<HTMLElement>) {
     if (event.key === 'ArrowLeft') { event.preventDefault(); previous(); }

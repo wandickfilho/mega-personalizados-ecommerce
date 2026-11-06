@@ -1,12 +1,17 @@
+import { ShieldCheck, Sparkles } from 'lucide-react';
 import { cartSubtotal, hasConsultationItems, type ResolvedCartItem } from '@/lib/cart';
 import { formatCurrency } from '@/lib/utils';
 
 export default function OrderSummary({ items }: { items: ResolvedCartItem[] }) {
   const subtotal = cartSubtotal(items);
   const hasConsultation = hasConsultationItems(items);
-  return <aside className="rounded-2xl border border-line bg-mist/60 p-5">
-    <h2 className="font-display text-lg font-bold text-navy">Resumo do pedido</h2>
-    <div className="mt-4 flex items-end justify-between gap-3 border-t border-line pt-4"><span className="text-sm text-graphite/65">Subtotal conhecido</span><strong className="font-display text-xl text-navy">{formatCurrency(subtotal)}</strong></div>
-    {hasConsultation && <p className="mt-3 rounded-xl bg-white/70 p-3 text-xs leading-relaxed text-graphite/65">Há itens com preço sob consulta ou demonstrativo. O subtotal considera apenas os produtos com valor oficial cadastrado e não representa o valor final.</p>}
+  const units = items.reduce((total, item) => total + item.quantity, 0);
+  return <aside className="premium-summary">
+    <div className="premium-summary-head"><h2>Resumo do pedido</h2><span><Sparkles className="h-3.5 w-3.5" /> {items.length} item(ns)</span></div>
+    <div className="premium-summary-row"><span>Unidades</span><b>{units}</b></div>
+    <div className="premium-summary-row"><span>Produtos personalizados</span><b>{items.filter((item) => item.kind === 'personalized').length}</b></div>
+    <div className="premium-summary-total"><span>Subtotal conhecido</span><strong>{formatCurrency(subtotal)}</strong></div>
+    {hasConsultation && <p className="premium-summary-note">Há itens sob consulta ou com valor demonstrativo. O total final, frete e pagamento são confirmados pela equipe Mega — nenhuma cobrança é feita agora.</p>}
+    <div className="premium-summary-secure"><ShieldCheck className="h-4 w-4" /><span>Pedido com aprovação humana e arquivos em armazenamento privado.</span></div>
   </aside>;
 }

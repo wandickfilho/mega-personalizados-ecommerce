@@ -6,6 +6,8 @@ import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp';
 import { SITE } from '@/config/site';
 import ThemeProvider from '@/components/ui/ThemeProvider';
 import CartProvider from '@/components/cart/CartProvider';
+import CartDrawer from '@/components/cart/CartDrawer';
+import AuthProvider from '@/components/auth/AuthProvider';
 
 export const metadata: Metadata = {
   ...(SITE.url ? { metadataBase: new URL(SITE.url) } : {}),
@@ -71,12 +73,15 @@ export default function RootLayout({
       </head>
       <body className="flex min-h-screen flex-col bg-canvas text-graphite antialiased">
         <ThemeProvider>
-          <CartProvider>
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <FloatingWhatsApp />
-          </CartProvider>
+          <AuthProvider>
+            <CartProvider>
+              <Header />
+              <CartDrawer />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <FloatingWhatsApp />
+            </CartProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

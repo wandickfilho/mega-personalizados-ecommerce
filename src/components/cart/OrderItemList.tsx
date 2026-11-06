@@ -1,17 +1,33 @@
 'use client';
 
 import Image from 'next/image';
-import { Minus, Plus, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { ImageIcon, Layers, Minus, PencilLine, Plus, Trash2 } from 'lucide-react';
 import type { ResolvedCartItem } from '@/lib/cart';
 import { formatCurrency } from '@/lib/utils';
 import ProductMockup from '@/components/products/ProductMockup';
 
 export default function OrderItemList({ items, editable = false, onQuantity, onRemove }: { items: ResolvedCartItem[]; editable?: boolean; onQuantity?: (itemId: string, quantity: number) => void; onRemove?: (itemId: string) => void }) {
-  return <div className="space-y-3">{items.map((item) => <article key={item.id} className="flex gap-3 border border-line bg-white p-3 sm:gap-4 sm:p-4">
-    <div className="relative flex h-20 w-16 shrink-0 items-center justify-center overflow-hidden bg-mist sm:h-24 sm:w-20">
-      {item.kind === 'personalized' && item.mockup && item.tone ? <ProductMockup variant={item.mockup} tone={item.tone} label={item.name} className="h-16 w-16" /> : item.image ? <Image src={item.image} alt={item.name} fill sizes="80px" className="object-contain p-1" /> : null}
-    </div>
-    <div className="min-w-0 flex-1"><h2 className="font-display text-sm font-bold text-navy sm:text-base">{item.name}</h2>{item.details.map((detail) => <p key={detail} className="mt-1 text-xs text-graphite/60">{detail}</p>)}<p className="mt-2 text-sm font-bold text-navy">{item.demonstrativePrice ? formatCurrency(item.demonstrativePrice) : item.price === null ? 'Sob consulta' : formatCurrency(item.price)}</p>{item.demonstrativePrice && <p className="mt-1 text-[10px] font-semibold text-brand">Valor demonstrativo</p>}
-    {editable ? <div className="mt-3 flex items-center justify-between gap-2"><div className="flex items-center border border-line bg-mist/50"><button type="button" onClick={() => onQuantity?.(item.id, item.quantity - 1)} aria-label="Diminuir quantidade" className="p-2 text-navy"><Minus className="h-3.5 w-3.5" /></button><span className="min-w-7 text-center text-xs font-bold text-navy">{item.quantity}</span><button type="button" onClick={() => onQuantity?.(item.id, item.quantity + 1)} aria-label="Aumentar quantidade" className="p-2 text-navy"><Plus className="h-3.5 w-3.5" /></button></div><button type="button" onClick={() => onRemove?.(item.id)} className="inline-flex items-center gap-1 text-xs font-semibold text-[#c13d52] transition hover:text-[#9f293f]"><Trash2 className="h-3.5 w-3.5" /> Remover</button></div> : <p className="mt-2 text-xs font-medium text-graphite/60">Quantidade: {item.quantity}</p>}</div>
-  </article>)}</div>;
+  return <div className="premium-order-items">{items.map((item) => {
+    const layerCount = item.personalization?.layers?.length ?? 0;
+    return <article key={item.id} className="premium-order-item">
+      <div className="premium-order-media">
+        {item.personalization?.previewImage ? <Image src={item.personalization.previewImage} alt={`Prévia de ${item.name}`} fill unoptimized sizes="112px" className="object-contain" /> : item.image ? <Image src={item.image} alt={item.name} fill unoptimized sizes="112px" className="object-contain p-2" /> : item.kind === 'personalized' && item.mockup && item.tone ? <ProductMockup variant={item.mockup} tone={item.tone} label={item.name} className="h-16 w-16" /> : <ImageIcon className="h-6 w-6 text-graphite/35" />}
+        {item.personalization && <span className="premium-order-media-badge"><Layers className="h-3 w-3" /> {layerCount || 0}</span>}
+      </div>
+      <div className="premium-order-copy">
+        <div className="premium-order-title"><div><h2>{item.name}</h2>{item.personalization ? <span>Personalizado{item.personalization.editor === 'phone-case' ? ' · capinha' : item.personalization.editor === 'mousepad' ? ' · mousepad' : ''}</span> : <span>Produto de catálogo</span>}</div><strong>{item.demonstrativePrice ? formatCurrency(item.demonstrativePrice) : item.price === null ? 'Sob consulta' : formatCurrency(item.price)}</strong></div>
+        {item.details.length > 0 && <p className="premium-order-details">{item.details.join(' · ')}</p>}
+        {layerCount > 0 && <p className="premium-order-layers"><Layers className="h-3.5 w-3.5" /> {layerCount} imagem(ns) na composição</p>}
+        {item.demonstrativePrice && <p className="premium-order-note">Valor demonstrativo, sujeito à confirmação.</p>}
+        {editable ? <div className="premium-order-actions">
+          <div className="premium-quantity"><button type="button" onClick={() => onQuantity?.(item.id, item.quantity - 1)} aria-label="Diminuir quantidade"><Minus className="h-3.5 w-3.5" /></button><span>{item.quantity}</span><button type="button" onClick={() => onQuantity?.(item.id, item.quantity + 1)} aria-label="Aumentar quantidade"><Plus className="h-3.5 w-3.5" /></button></div>
+          <div className="premium-order-links">
+            {item.kind === 'personalized' && item.productSlug && <Link href={`/personalizados/${item.productSlug}?edit=${item.id}`}><PencilLine className="h-3.5 w-3.5" /> Editar personalização</Link>}
+            <button type="button" onClick={() => onRemove?.(item.id)}><Trash2 className="h-3.5 w-3.5" /> Remover</button>
+          </div>
+        </div> : <p className="premium-order-layers">Quantidade: {item.quantity}</p>}
+      </div>
+    </article>;
+  })}</div>;
 }

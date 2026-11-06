@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowUpRight, Mail, MapPin, MessageCircle } from 'lucide-react';
-import { CATEGORIES } from '@/config/categories';
+import { CUSTOM_CATALOG_NAV } from '@/config/customCatalog';
 import { CONTACT, SITE, WHATSAPP_ENABLED } from '@/config/site';
 import StoreHours from '@/components/ui/StoreHours';
 import BrandLogo from './BrandLogo';
@@ -26,21 +26,16 @@ export default function Footer() {
               Categorias
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm">
-              {CATEGORIES.map((category) => (
-                <li key={category.id}>
+              {CUSTOM_CATALOG_NAV.map((category) => (
+                <li key={category.href}>
                   <Link
-                    href={`/?categoria=${category.id}#vitrine`}
+                    href={category.href}
                     className="transition hover:text-white"
                   >
-                    {category.shortName}
+                    {category.label}
                   </Link>
                 </li>
               ))}
-              <li>
-                <Link href="/#categorias" className="font-semibold text-brand transition hover:text-white">
-                  Ver todas
-                </Link>
-              </li>
             </ul>
           </div>
 

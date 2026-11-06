@@ -272,6 +272,24 @@ export default function ProductMockup({
           <path d="M108 98h42" stroke="#FFFFFF" strokeOpacity="0.4" strokeWidth="3" strokeLinecap="round" />
         </g>
       )}
+
+      {variant === 'tshirt' && (
+        <g>
+          <path d="M58 61 83 45h34l25 16 20 32-24 14-10-15v74H72V92l-10 15-24-14Z" fill={c.base} />
+          <path d="M83 45c0 13 34 13 34 0" fill="none" stroke={c.line} strokeWidth="4" />
+          <rect x="76" y="91" width="48" height="42" rx="6" fill={c.soft} />
+          <text x="100" y="116" textAnchor="middle" fill={c.ink} fontFamily="Manrope, sans-serif" fontSize="8" fontWeight="800">{text}</text>
+        </g>
+      )}
+
+      {variant === 'mousepad' && (
+        <g transform="rotate(-8 100 100)">
+          <rect x="38" y="62" width="124" height="84" rx="12" fill={c.base} />
+          <rect x="46" y="70" width="108" height="68" rx="8" fill={c.soft} />
+          <text x="100" y="107" textAnchor="middle" fill={c.ink} fontFamily="Manrope, sans-serif" fontSize="10" fontWeight="800">{text}</text>
+          <path d="M64 126h72" stroke={c.accent} strokeWidth="4" strokeLinecap="round" />
+        </g>
+      )}
     </svg>
   );
 }

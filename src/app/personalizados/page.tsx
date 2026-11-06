@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: 'Conheça os produtos personalizados em destaque da Mega.',
 };
 
-export default function PersonalizedCatalogPage() {
-  return <main><FeaturedPersonalizedProducts catalog /></main>;
+export default async function PersonalizedCatalogPage({ searchParams }: { searchParams: Promise<{ q?: string | string[] }> }) {
+  const params = await searchParams;
+  const query = Array.isArray(params.q) ? params.q[0] : params.q;
+  return <main><FeaturedPersonalizedProducts query={query ?? ''} /></main>;
 }

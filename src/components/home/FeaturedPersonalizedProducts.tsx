@@ -1,73 +1,236 @@
-import Link from 'next/link';
-import { ArrowRight, Play } from 'lucide-react';
-import { PERSONALIZED_PRODUCTS, type PersonalizedProduct } from '@/data/personalizedProducts';
-import { getCategory } from '@/config/categories';
-import { formatCurrency } from '@/lib/utils';
 
-interface FeaturedPersonalizedProductsProps {
-  catalog?: boolean;
+import Link from 'next/link';
+import Image from 'next/image';
+import {
+  ArrowRight,
+  Gift,
+  ImagePlus,
+  Pencil,
+  Layers3,
+} from 'lucide-react';
+
+import {
+  PERSONALIZED_PRODUCTS,
+  type PersonalizedProduct,
+} from '@/data/personalizedProducts';
+
+const PRODUCT_ORDER = [
+  'mug',
+  'tshirt',
+  'bottle',
+  'phone-case',
+  'mousepad',
+] as const;
+
+const CARD_ACCENTS: Record<string, string> = {
+  mug: '#ff2448',
+  tshirt: '#ffc21a',
+  bottle: '#16b9ee',
+  'phone-case': '#a855f7',
+  mousepad: '#65d834',
+};
+
+const PRODUCT_IMAGES: Record<string, string> = {
+  mug: '/produtos/imagens2D/caneca-2d.png',
+  tshirt: '/produtos/imagens2D/camisa-2d.png',
+  bottle: '/produtos/imagens2D/garrafa-2d.png',
+  'phone-case': '/produtos/imagens2D/capinha-2d.png',
+  mousepad: '/produtos/imagens2D/mousepad-2d.png',
+};
+
+function productKey(product: PersonalizedProduct): string {
+  return product.editor2d ?? product.model3d ?? '';
 }
 
-function ProductVideo({ product }: { product: PersonalizedProduct }) {
-  if (!product.media) return null;
+function ProductCard({
+  product,
+}: {
+  product: PersonalizedProduct;
+}) {
+  const key = productKey(product);
+  const accent = CARD_ACCENTS[key] ?? '#ff2448';
+  const image = PRODUCT_IMAGES[key];
 
   return (
-    <video
-      className="featured-product-video"
-      autoPlay
-      muted
-      loop
-      playsInline
-      preload="metadata"
-      aria-label={product.media.alt}
+    <article
+      className="mega-product-banner group"
+      style={
+        { '--product-accent': accent } as React.CSSProperties
+      }
     >
-      <source src={product.media.src} type="video/mp4" />
-    </video>
+      <div className="mega-product-copy">
+        <span className="mega-model-badge">
+          <Layers3 className="h-4 w-4" />
+          2D personalizável
+        </span>
+
+        <h2>{product.name}</h2>
+        <p>{product.description}</p>
+
+        <Link
+          href={`/personalizados/${product.slug}`}
+          className="mega-product-button"
+        >
+          Personalizar em 2D
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+
+      <Link
+        href={`/personalizados/${product.slug}`}
+        aria-label={`Personalizar ${product.name} em 2D`}
+        className="mega-product-model"
+      >
+        {image && (
+          <Image
+            src={image}
+            alt={product.name}
+            fill
+            sizes="(min-width: 768px) 45vw, 42vw"
+            className="mega-product-image object-contain"
+          />
+        )}
+
+        <i className="mega-product-mark one" />
+        <i className="mega-product-mark two" />
+        <i className="mega-product-mark three" />
+      </Link>
+    </article>
   );
 }
 
-export default function FeaturedPersonalizedProducts({ catalog = false }: FeaturedPersonalizedProductsProps) {
-  const products = PERSONALIZED_PRODUCTS.filter((product) => product.media);
-  const title = catalog ? 'Todos os personalizados' : 'Personalizados em Destaque';
+function OtherProductsCard() {
+  return (
+    <article className="mega-product-banner mega-other-banner">
+      <div className="mega-product-copy">
+        <span className="mega-model-badge">
+          <Gift className="h-4 w-4" />
+          Projetos especiais
+        </span>
+
+        <h2>Outros Personalizados</h2>
+
+        <p>
+          Chaveiros, bonés, almofadas, brindes e muito mais!
+        </p>
+
+        <Link
+          href="/personalizados/outros"
+          className="mega-other-button"
+        >
+          Falar com um vendedor
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+
+      <Link
+        href="/personalizados/outros"
+        aria-label="Falar com um vendedor sobre outros personalizados"
+        className="mega-gift-visual"
+      >
+        <Gift className="h-28 w-28" />
+        <span />
+      </Link>
+    </article>
+  );
+}
+
+function StudioBenefits() {
+  return (
+    <div className="mega-studio-visual">
+      <div className="mega-orbit-cube">
+        <Layers3 className="h-16 w-16" />
+        <i />
+        <b />
+      </div>
+
+      <div className="mega-benefit-list">
+        <span>
+          <Layers3 className="h-5 w-5" />
+          Prévia personalizada em 2D
+        </span>
+
+        <span>
+          <Pencil className="h-5 w-5" />
+          Imagens e textos por área
+        </span>
+
+        <span>
+          <ImagePlus className="h-5 w-5" />
+          Envie suas próprias artes
+        </span>
+      </div>
+    </div>
+  );
+}
+
+export default function FeaturedPersonalizedProducts({
+  query = '',
+}: {
+  query?: string;
+}) {
+  const term = query.trim().toLocaleLowerCase('pt-BR');
+
+  const products = PRODUCT_ORDER
+    .map((key) =>
+      PERSONALIZED_PRODUCTS.find(
+        (product) => productKey(product) === key
+      )
+    )
+    .filter(
+      (product): product is PersonalizedProduct =>
+        Boolean(product)
+    )
+    .filter(
+      (product) =>
+        !term ||
+        `${product.name} ${product.description}`
+          .toLocaleLowerCase('pt-BR')
+          .includes(term)
+    );
 
   return (
-    <section id="personalizados-destaque" className="featured-products-section scroll-mt-32">
+    <section
+      id="personalizados-3d"
+      className="mega-studio-section scroll-mt-32"
+    >
       <div className="section-shell">
-        <header className="featured-products-heading">
+        <header className="mega-studio-intro">
           <div>
-            <span className="section-kicker">Seleção Mega</span>
-            <h1 className={catalog ? 'section-title mt-4' : 'section-title mt-4'}>{title}</h1>
-            <p>Encontre o presente perfeito ou crie algo único com a sua personalidade.</p>
+            <span className="mega-studio-kicker">
+              MEGA CUSTOM STUDIO
+            </span>
+
+            <h1>
+              Crie do seu jeito, <em>visualize antes</em>
+            </h1>
+
+            <p>
+              Personalize capinhas, canecas, camisetas,
+              garrafas e mousepads com suas próprias
+              imagens, textos e ajustes individuais.
+            </p>
           </div>
-          <div className="featured-price-notice">Preços demonstrativos, sujeitos à confirmação</div>
+
+          <StudioBenefits />
         </header>
 
-        <div className="featured-products-grid">
-          {products.map((product) => {
-            const category = getCategory(product.category);
-            return (
-              <article key={product.id} className="featured-product-card group">
-                <Link href={`/personalizados/${product.slug}`} className="featured-product-media" aria-label={`Ver ${product.name}`}>
-                  <ProductVideo product={product} />
-                  <span className="featured-product-badge"><Play className="h-3 w-3 fill-current" aria-hidden /> Produto real</span>
-                </Link>
-                <div className="featured-product-copy">
-                  <p>{category?.shortName ?? 'Personalizados'}</p>
-                  <h2>{product.name}</h2>
-                  <div className="featured-product-footer">
-                    <div>
-                      <strong>{product.demonstrativePrice ? formatCurrency(product.demonstrativePrice) : 'Sob consulta'}</strong>
-                      <span>Valor demonstrativo</span>
-                    </div>
-                    <Link href={`/personalizados/${product.slug}`} className="featured-product-action">Personalizar <ArrowRight className="h-3.5 w-3.5" aria-hidden /></Link>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
+        {products.length ? (
+          <div className="mega-product-grid">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+              />
+            ))}
 
-        {!catalog && <div className="mt-9 text-center"><Link href="/personalizados" className="featured-products-all">Ver todos os personalizados <ArrowRight className="h-4 w-4" aria-hidden /></Link></div>}
+            {!term && <OtherProductsCard />}
+          </div>
+        ) : (
+          <p className="mega-empty-search">
+            Nenhum produto encontrado para “{query}”.
+          </p>
+        )}
       </div>
     </section>
   );

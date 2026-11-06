@@ -3,9 +3,8 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronRight, Monitor, Moon, Sun, X } from 'lucide-react';
-import { CATEGORIES } from '@/config/categories';
+import { CUSTOM_CATALOG_NAV } from '@/config/customCatalog';
 import { useTheme, type ThemePreference } from '@/components/ui/ThemeProvider';
-import CategoryIcon from '@/components/ui/CategoryIcon';
 import BrandLogo from './BrandLogo';
 import { NAV_LINKS } from './navLinks';
 
@@ -75,18 +74,15 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
             Categorias
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2">
-            {CATEGORIES.map((category) => (
+            {CUSTOM_CATALOG_NAV.map((category) => (
               <Link
-                key={category.id}
-                href={`/?categoria=${category.id}#vitrine`}
+                key={category.href}
+                href={category.href}
                 onClick={onClose}
-                className="group flex min-h-24 flex-col justify-between rounded-2xl border border-line bg-mist/50 p-3 transition hover:border-brand/30 hover:bg-white hover:shadow-soft"
+                className="group flex min-h-20 items-center rounded-2xl border border-line bg-mist/50 p-3 text-center transition hover:border-brand/30 hover:bg-white hover:shadow-soft"
               >
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-navy text-white">
-                  <CategoryIcon icon={category.icon} className="h-4 w-4" />
-                </span>
-                <span className="mt-3 text-xs font-bold leading-tight text-navy">
-                  {category.shortName}
+                <span className="text-xs font-bold leading-tight text-navy">
+                  {category.label}
                 </span>
               </Link>
             ))}

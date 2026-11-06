@@ -10,7 +10,16 @@ export type ProductMockup =
   | 'cap'
   | 'pouch'
   | 'gift'
-  | 'kit';
+  | 'kit'
+  | 'tshirt'
+  | 'mousepad';
+
+export type Custom3DModel = 'mug' | 'phone-case' | 'bottle' | 'tshirt' | 'mousepad';
+
+export const PRODUCT_IMAGE_2D: Partial<Record<string, string>> = {
+  'phone-case': '/produtos/imagens2D/capinha-2d.png',
+  mousepad: '/produtos/imagens2D/mousepad-2d.png',
+};
 
 export interface ProductMedia {
   src: string;
@@ -33,14 +42,23 @@ export interface PersonalizedProduct {
   video?: string;
   media?: ProductMedia;
   demonstrativePrice?: number;
+  model3d?: Custom3DModel;
+  editor2d?: 'phone-case' | 'mousepad';
 }
 
 export interface PersonalizedProductOptions {
   text?: boolean;
   colors?: string[];
+  models?: string[];
+  materials?: string[];
+  engravingTypes?: string[];
+  fonts?: string[];
+  textColors?: string[];
+  characterLimit?: number;
   sizes?: string[];
   artwork?: boolean;
   notes?: boolean;
+  printableArea?: string;
 }
 
 /**
@@ -60,7 +78,8 @@ export const PERSONALIZED_PRODUCTS: PersonalizedProduct[] = [
     tone: 'navy',
     mockup: 'mug',
     isDemo: true,
-    options: { text: true, artwork: true, notes: true },
+    options: { text: true, artwork: true, notes: true, colors: ['Branca', 'Preta'], fonts: ['Clássica', 'Manuscrita', 'Moderna'], textColors: ['Azul-marinho', 'Vermelho', 'Preto'], characterLimit: 32, printableArea: 'Área central da caneca' },
+    model3d: 'mug',
   },
   {
     id: 'demo-capinha-identidade',
@@ -75,7 +94,8 @@ export const PERSONALIZED_PRODUCTS: PersonalizedProduct[] = [
     isDemo: true,
     media: { src: '/produtos/capinha.mp4', alt: 'Vídeo de uma capinha personalizada da Mega' },
     demonstrativePrice: 29.9,
-    options: { artwork: true, notes: true },
+    options: { artwork: true, notes: true, models: ['iPhone', 'Samsung Galaxy', 'Motorola'], materials: ['Rígida', 'Flexível'], printableArea: 'Área frontal, respeitando a região das câmeras' },
+    editor2d: 'phone-case',
   },
   {
     id: 'demo-capa-tablet',
@@ -88,7 +108,7 @@ export const PERSONALIZED_PRODUCTS: PersonalizedProduct[] = [
     tone: 'royal',
     mockup: 'tablet-case',
     isDemo: true,
-    options: { artwork: true, notes: true },
+    options: { artwork: true, notes: true, models: ['10 polegadas', '11 polegadas', '12,9 polegadas'], printableArea: 'Área externa da capa' },
   },
   {
     id: 'demo-chaveiro-acrilico',
@@ -101,7 +121,7 @@ export const PERSONALIZED_PRODUCTS: PersonalizedProduct[] = [
     tone: 'ice',
     mockup: 'keychain',
     isDemo: true,
-    options: { text: true, notes: true },
+    options: { text: true, notes: true, models: ['Redondo', 'Retangular'], engravingTypes: ['Gravação a laser'], fonts: ['Clássica', 'Moderna'], characterLimit: 18, printableArea: 'Área central do chaveiro' },
   },
   {
     id: 'demo-bone-marca',
@@ -120,6 +140,34 @@ export const PERSONALIZED_PRODUCTS: PersonalizedProduct[] = [
     options: { artwork: true, notes: true },
   },
   {
+    id: 'demo-camiseta-personalizada',
+    slug: 'camiseta-personalizada',
+    name: 'Camiseta Personalizada',
+    category: 'presentes',
+    technique: 'Impressão sob consulta',
+    description: 'Camiseta com prévia 3D ilustrativa da arte aplicada na região frontal.',
+    tags: ['Vestuário', 'Arte autoral'],
+    tone: 'white',
+    mockup: 'tshirt',
+    isDemo: true,
+    options: { text: true, artwork: true, fonts: ['Clássica', 'Manuscrita', 'Moderna'], textColors: ['Azul-marinho', 'Vermelho', 'Preto'], characterLimit: 48, printableArea: 'Região frontal central da camiseta' },
+    model3d: 'tshirt',
+  },
+  {
+    id: 'demo-mousepad-personalizado',
+    slug: 'mousepad-personalizado',
+    name: 'Mousepad Personalizado',
+    category: 'presentes',
+    technique: 'Impressão sob consulta',
+    description: 'Mousepad com prévia 3D ilustrativa para sua arte ou identidade visual.',
+    tags: ['Home office', 'Presente'],
+    tone: 'royal',
+    mockup: 'mousepad',
+    isDemo: true,
+    options: { text: true, artwork: true, fonts: ['Clássica', 'Moderna'], textColors: ['Azul-marinho', 'Vermelho', 'Preto'], characterLimit: 48, printableArea: 'Superfície superior do mousepad' },
+    editor2d: 'mousepad',
+  },
+  {
     id: 'demo-garrafa-personalizada',
     slug: 'garrafa-personalizada',
     name: 'Garrafa Personalizada',
@@ -133,6 +181,7 @@ export const PERSONALIZED_PRODUCTS: PersonalizedProduct[] = [
     media: { src: '/produtos/garrafa.mp4', alt: 'Vídeo de uma garrafa personalizada da Mega' },
     demonstrativePrice: 39.9,
     options: { artwork: true, notes: true },
+    model3d: 'bottle',
   },
   {
     id: 'demo-necessaire-viagem',
