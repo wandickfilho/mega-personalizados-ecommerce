@@ -17,6 +17,9 @@ export type ProductMockup =
 export type Custom3DModel = 'mug' | 'phone-case' | 'bottle' | 'tshirt' | 'mousepad';
 
 export const PRODUCT_IMAGE_2D: Partial<Record<string, string>> = {
+  mug: '/produtos/imagens2D/caneca-2d.png',
+  tshirt: '/produtos/imagens2D/camisa-2d.png',
+  bottle: '/produtos/imagens2D/garrafa-2d.png',
   'phone-case': '/produtos/imagens2D/capinha-2d.png',
   mousepad: '/produtos/imagens2D/mousepad-2d.png',
 };
@@ -43,7 +46,7 @@ export interface PersonalizedProduct {
   media?: ProductMedia;
   demonstrativePrice?: number;
   model3d?: Custom3DModel;
-  editor2d?: 'phone-case' | 'mousepad';
+  editor2d?: 'mug' | 'tshirt' | 'bottle' | 'phone-case' | 'mousepad';
 }
 
 export interface PersonalizedProductOptions {
@@ -79,7 +82,7 @@ export const PERSONALIZED_PRODUCTS: PersonalizedProduct[] = [
     mockup: 'mug',
     isDemo: true,
     options: { text: true, artwork: true, notes: true, colors: ['Branca', 'Preta'], fonts: ['Clássica', 'Manuscrita', 'Moderna'], textColors: ['Azul-marinho', 'Vermelho', 'Preto'], characterLimit: 32, printableArea: 'Área central da caneca' },
-    model3d: 'mug',
+    editor2d: 'mug',
   },
   {
     id: 'demo-capinha-identidade',
@@ -94,7 +97,7 @@ export const PERSONALIZED_PRODUCTS: PersonalizedProduct[] = [
     isDemo: true,
     media: { src: '/produtos/capinha.mp4', alt: 'Vídeo de uma capinha personalizada da Mega' },
     demonstrativePrice: 29.9,
-    options: { artwork: true, notes: true, models: ['iPhone', 'Samsung Galaxy', 'Motorola'], materials: ['Rígida', 'Flexível'], printableArea: 'Área frontal, respeitando a região das câmeras' },
+    options: { text: true, artwork: true, notes: true, models: ['iPhone', 'Samsung Galaxy', 'Xiaomi Redmi'], materials: ['Rígida', 'Flexível'], fonts: ['Clássica', 'Manuscrita', 'Moderna'], textColors: ['Azul-marinho', 'Vermelho', 'Preto'], characterLimit: 48, printableArea: 'Área traseira, respeitando a região das câmeras' },
     editor2d: 'phone-case',
   },
   {
@@ -145,13 +148,13 @@ export const PERSONALIZED_PRODUCTS: PersonalizedProduct[] = [
     name: 'Camiseta Personalizada',
     category: 'presentes',
     technique: 'Impressão sob consulta',
-    description: 'Camiseta com prévia 3D ilustrativa da arte aplicada na região frontal.',
+    description: 'Camiseta com áreas 2D para frente, costas e manga.',
     tags: ['Vestuário', 'Arte autoral'],
     tone: 'white',
     mockup: 'tshirt',
     isDemo: true,
     options: { text: true, artwork: true, fonts: ['Clássica', 'Manuscrita', 'Moderna'], textColors: ['Azul-marinho', 'Vermelho', 'Preto'], characterLimit: 48, printableArea: 'Região frontal central da camiseta' },
-    model3d: 'tshirt',
+    editor2d: 'tshirt',
   },
   {
     id: 'demo-mousepad-personalizado',
@@ -159,7 +162,7 @@ export const PERSONALIZED_PRODUCTS: PersonalizedProduct[] = [
     name: 'Mousepad Personalizado',
     category: 'presentes',
     technique: 'Impressão sob consulta',
-    description: 'Mousepad com prévia 3D ilustrativa para sua arte ou identidade visual.',
+    description: 'Mousepad com prévia superior 2D para sua arte ou identidade visual.',
     tags: ['Home office', 'Presente'],
     tone: 'royal',
     mockup: 'mousepad',
@@ -173,15 +176,15 @@ export const PERSONALIZED_PRODUCTS: PersonalizedProduct[] = [
     name: 'Garrafa Personalizada',
     category: 'presentes',
     technique: 'Impressão UV',
-    description: 'Garrafa personalizada para acompanhar a rotina com uma arte exclusiva.',
+    description: 'Garrafa com áreas 2D para frente, lateral e verso.',
     tags: ['Dia a dia', 'Presente'],
     tone: 'ice',
     mockup: 'gift',
     isDemo: true,
     media: { src: '/produtos/garrafa.mp4', alt: 'Vídeo de uma garrafa personalizada da Mega' },
     demonstrativePrice: 39.9,
-    options: { artwork: true, notes: true },
-    model3d: 'bottle',
+    options: { text: true, artwork: true, notes: true, fonts: ['Clássica', 'Manuscrita', 'Moderna'], textColors: ['Azul-marinho', 'Vermelho', 'Preto'], characterLimit: 48, printableArea: 'Corpo central da garrafa' },
+    editor2d: 'bottle',
   },
   {
     id: 'demo-necessaire-viagem',

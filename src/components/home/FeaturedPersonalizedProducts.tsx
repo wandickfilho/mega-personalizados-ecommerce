@@ -39,7 +39,7 @@ const PRODUCT_IMAGES: Record<string, string> = {
 };
 
 function productKey(product: PersonalizedProduct): string {
-  return product.editor2d ?? product.model3d ?? '';
+  return product.editor2d ?? '';
 }
 
 function ProductCard({
@@ -191,7 +191,7 @@ export default function FeaturedPersonalizedProducts({
 
   return (
     <section
-      id="personalizados-3d"
+      id="personalizados-2d"
       className="mega-studio-section scroll-mt-32"
     >
       <div className="section-shell">

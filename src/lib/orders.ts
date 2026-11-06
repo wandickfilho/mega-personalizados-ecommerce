@@ -1,4 +1,4 @@
-import type { ArtworkLayer } from '@/lib/personalization';
+import type { ArtworkLayer, TextLayer } from '@/lib/personalization';
 
 export interface OrderCustomer {
   firstName: string;
@@ -50,6 +50,8 @@ export interface OrderItemPayload {
     engraving?: string;
     notes?: string;
     editor?: string;
+    faceTexts?: Record<string, TextLayer>;
+    activeFace?: string;
     layers: OrderLayerPayload[];
   };
   previewPath?: string;

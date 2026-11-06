@@ -5,6 +5,7 @@ import { isSupabaseAdminConfigured, isWhatsAppConfigured, ORDER_WHATSAPP_NUMBER,
 import { PHONES } from '@/data/phones';
 import { CONDITION_LABEL } from '@/lib/phones';
 import { PERSONALIZED_PRODUCTS } from '@/data/personalizedProducts';
+import { getEditor2DConfig } from '@/lib/editor2d';
 import type { OrderItemPayload, OrderPayload } from '@/lib/orders';
 
 export const runtime = 'nodejs';
@@ -102,7 +103,8 @@ export async function POST(request: NextRequest) {
         const product = PERSONALIZED_PRODUCTS.find((entry) => entry.id === input.productId);
         if (!product) continue;
         const personalization = input.personalization;
-        if ((personalization?.layers?.length ?? 0) > 5) throw new OrderInputError(`O item ${product.name} excede o limite de 5 imagens.`);
+        const maxImages = product.editor2d ? getEditor2DConfig(product).maxImages : 5;
+        if ((personalization?.layers?.length ?? 0) > maxImages) throw new OrderInputError(`O item ${product.name} excede o limite de ${maxImages} imagem(ns).`);
         const layers = [];
         for (let layerIndex = 0; layerIndex < (personalization?.layers?.length ?? 0); layerIndex += 1) {
           const layer = personalization!.layers[layerIndex];
@@ -145,6 +147,11 @@ export async function POST(request: NextRequest) {
             engraving: text(personalization?.engraving, 80) || undefined,
             notes: text(personalization?.notes, 600) || undefined,
             editor: text(personalization?.editor, 40) || undefined,
+            faceTexts: Object.fromEntries(Object.entries(personalization?.faceTexts ?? {}).filter(([, value]) => Boolean(value?.value)).map(([face, value]) => {
+              const layer = value && typeof value === 'object' ? value as unknown as Record<string, unknown> : {};
+              return [text(face, 40), { value: text(layer.value, 200), positionX: Number.isFinite(layer.positionX) ? Math.max(0, Math.min(100, Number(layer.positionX))) : 50, positionY: Number.isFinite(layer.positionY) ? Math.max(0, Math.min(100, Number(layer.positionY))) : 50, rotation: Number.isFinite(layer.rotation) ? Math.max(-180, Math.min(180, Number(layer.rotation))) : 0, size: Number.isFinite(layer.size) ? Math.max(12, Math.min(48, Number(layer.size))) : 18, color: text(layer.color, 40) || 'Azul-marinho', font: text(layer.font, 40) || 'Moderna', bold: Boolean(layer.bold) }];
+            })),
+            activeFace: text(personalization?.activeFace, 40) || undefined,
             layers,
           },
           previewPath,

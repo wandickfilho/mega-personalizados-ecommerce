@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { PhoneModel, PhoneVariant } from '@/lib/types';
 import type { PersonalizedProduct } from '@/data/personalizedProducts';
-import type { ArtworkLayer, StageEditor } from '@/lib/personalization';
+import type { ArtworkLayer, StageEditor, TextLayer } from '@/lib/personalization';
 
 export interface PhoneCartItem {
   kind?: 'phone';
@@ -26,6 +26,8 @@ export interface PersonalizationState {
   editor?: StageEditor;
   artworkName?: string;
   previewImage?: string;
+  faceTexts?: Record<string, TextLayer>;
+  activeFace?: string;
   design?: {
     positionX: number;
     positionY: number;

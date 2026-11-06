@@ -118,6 +118,8 @@ export default function CheckoutFlow({ items }: { items: ResolvedCartItem[] }) {
             engraving: item.personalization.engraving,
             notes: item.personalization.notes,
             editor: item.personalization.editor,
+            faceTexts: item.personalization.faceTexts,
+            activeFace: item.personalization.activeFace,
             layers: (item.personalization.layers ?? []).map((layer) => ({
               id: layer.id,
               name: layer.name,

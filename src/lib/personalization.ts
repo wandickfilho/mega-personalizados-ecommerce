@@ -1,7 +1,7 @@
 export const MAX_ARTWORK_LAYERS = 5;
 export const MAX_ARTWORK_BYTES = 8 * 1024 * 1024;
 
-export type StageEditor = 'phone-case' | 'mousepad' | 'generic';
+export type StageEditor = 'mug' | 'tshirt' | 'bottle' | 'phone-case' | 'mousepad' | 'generic';
 
 export interface ArtworkLayer {
   id: string;
@@ -16,6 +16,19 @@ export interface ArtworkLayer {
   positionY: number;
   scale: number;
   rotation: number;
+  /** Face do produto 2D à qual a arte pertence. */
+  faceId?: string;
+}
+
+export interface TextLayer {
+  value: string;
+  positionX: number;
+  positionY: number;
+  rotation: number;
+  size: number;
+  color: string;
+  font: string;
+  bold: boolean;
 }
 
 export interface PrintableAreaConfig {

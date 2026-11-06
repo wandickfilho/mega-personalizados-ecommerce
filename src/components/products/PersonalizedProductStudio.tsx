@@ -2,16 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
-import { AlignCenter, Camera, Check, ChevronDown, ChevronLeft, ImagePlus, Maximize2, Minus, Plus, RotateCcw, RotateCw, ShoppingBag, Trash2, Upload, X, ArrowUp, ArrowDown, Layers } from 'lucide-react';
+import { AlignCenter, Check, ChevronDown, ChevronLeft, ChevronRight, Eye, ImagePlus, Minus, Plus, RotateCcw, RotateCw, ShoppingBag, Trash2, Upload, X, ArrowUp, ArrowDown, Layers } from 'lucide-react';
 import type { PersonalizedProduct } from '@/data/personalizedProducts';
-import ArtworkCanvas from '@/components/customizer/ArtworkCanvas';
+import Product2DStage from '@/components/customizer/Product2DStage';
 import { useCart, type PersonalizationState } from '@/components/cart/CartProvider';
 import { formatCurrency } from '@/lib/utils';
-import { createArtworkLayer, layerWidthPercent, MAX_ARTWORK_LAYERS, renderCompositePreview, type ArtworkLayer, type StageEditor } from '@/lib/personalization';
+import { createArtworkLayer, renderCompositePreview, type ArtworkLayer, type StageEditor, type TextLayer } from '@/lib/personalization';
 import { removeArtworkOriginal, saveArtworkOriginal } from '@/lib/artworkStore';
-
-const Product3DViewer = dynamic(() => import('@/components/customizer3d/Product3DViewer'), { ssr: false, loading: () => <div className="viewer-3d-loading">Preparando visualizador 3D...</div> });
+import { getEditor2DConfig, resolveEditorFace } from '@/lib/editor2d';
 
 const TEXT_COLORS: Record<string, string> = { 'Azul-marinho': '#071743', Vermelho: '#ff2448', Preto: '#17233b' };
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
@@ -19,17 +17,16 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 export default function PersonalizedProductStudio({ product }: { product: PersonalizedProduct }) {
   const { addPersonalizedItem, updatePersonalizedItem, items, isHydrated } = useCart();
   const options = product.options ?? {};
-  const has3D = Boolean(product.model3d);
   const editor2d: StageEditor = product.editor2d ?? 'generic';
+  const editorConfig = getEditor2DConfig(product);
 
   const fileInput = useRef<HTMLInputElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
+  const replaceInput = useRef<HTMLInputElement>(null);
   const addedTimer = useRef<number | null>(null);
-  const captureTimer = useRef<number | null>(null);
-  const pendingAdd = useRef(false);
 
   const [step, setStep] = useState(1);
-  const [text, setText] = useState('');
+  const [faceTexts, setFaceTexts] = useState<Record<string, TextLayer>>({});
+  const [activeFaceIndex, setActiveFaceIndex] = useState(0);
   const [notes, setNotes] = useState('');
   const [color, setColor] = useState(options.colors?.[0] ?? '');
   const [textColor, setTextColor] = useState(options.textColors?.[0] ?? 'Azul-marinho');
@@ -46,9 +43,21 @@ export default function PersonalizedProductStudio({ product }: { product: Person
   const [added, setAdded] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editLoaded, setEditLoaded] = useState(false);
-  const [captureRequest, setCaptureRequest] = useState(0);
-  const [resetRequest, setResetRequest] = useState(0);
-  const [captureResult, setCaptureResult] = useState<{ image: string; nonce: number } | null>(null);
+  const [showGuides, setShowGuides] = useState(true);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [mugPresentation, setMugPresentation] = useState<'mockup' | 'flat'>('mockup');
+  const [replaceLayerId, setReplaceLayerId] = useState<string | null>(null);
+  const activeFace = editorConfig.faces[activeFaceIndex];
+  const resolvedFace = resolveEditorFace(editorConfig, activeFace, model);
+  const activeDesignKey = editorConfig.kind === 'phone-case' ? `${activeFace.id}:${model}` : activeFace.id;
+  const activeFaceImageCount = layers.filter((layer) => layer.faceId === activeDesignKey || (!layer.faceId && activeFace.id === editorConfig.faces[0].id)).length;
+  const imageLimitCount = editorConfig.kind === 'tshirt' || editorConfig.kind === 'bottle' || editorConfig.kind === 'phone-case' ? activeFaceImageCount : layers.length;
+  const textLayer = faceTexts[activeDesignKey];
+  const text = textLayer?.value ?? '';
+  const updateText = (patch: Partial<TextLayer>) => setFaceTexts((current) => {
+    const fallback: TextLayer = { value: '', positionX: 50, positionY: 50, rotation: 0, size: 18, color: textColor, font, bold: false };
+    return { ...current, [activeDesignKey]: { ...fallback, ...current[activeDesignKey], ...patch } };
+  });
 
   useEffect(() => {
     if (!isHydrated || editLoaded) return;
@@ -61,7 +70,7 @@ export default function PersonalizedProductStudio({ product }: { product: Person
       setEditingItemId(editId);
       setLayers(personalization.layers ?? []);
       setSelectedId(personalization.layers?.[0]?.id ?? null);
-      setText(personalization.text ?? '');
+      setFaceTexts(personalization.faceTexts ?? (personalization.text ? { [personalization.activeFace ?? editorConfig.faces[0].id]: { value: personalization.text, positionX: 50, positionY: 50, rotation: 0, size: 18, color: personalization.textColor ?? textColor, font: personalization.font ?? font, bold: false } } : {}));
       setNotes(personalization.notes ?? '');
       setColor(personalization.color ?? color);
       setTextColor(personalization.textColor ?? textColor);
@@ -70,6 +79,7 @@ export default function PersonalizedProductStudio({ product }: { product: Person
       setFont(personalization.font ?? font);
       setEngraving(personalization.engraving ?? engraving);
       setQuantity(item.quantity);
+      setActiveFaceIndex(Math.max(0, editorConfig.faces.findIndex((face) => face.id === personalization.activeFace?.split(':')[0])));
       setStep(2);
       setEditLoaded(true);
     });
@@ -79,33 +89,30 @@ export default function PersonalizedProductStudio({ product }: { product: Person
 
   useEffect(() => () => {
     if (addedTimer.current) window.clearTimeout(addedTimer.current);
-    if (captureTimer.current) window.clearTimeout(captureTimer.current);
   }, []);
 
-  useEffect(() => {
-    if (!pendingAdd.current || !captureResult) return;
-    pendingAdd.current = false;
-    if (captureTimer.current) window.clearTimeout(captureTimer.current);
-    finishAdd(captureResult.image);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [captureResult]);
-
-  async function handleFile(file?: File) {
+  async function handleFile(file?: File, replacingId?: string | null) {
     if (!file) return;
-    if (layers.length >= MAX_ARTWORK_LAYERS) { setError('Limite de 5 imagens por produto.'); return; }
+    if (!replacingId && imageLimitCount >= editorConfig.maxImages) { setError(`Limite de ${editorConfig.maxImages} imagem(ns) na área ${activeFace.name}.`); return; }
     setUploading(true);
     setError('');
     try {
       const layer = await createArtworkLayer(file);
       await saveArtworkOriginal(layer.storageKey, file);
-      setLayers((current) => [...current, layer]);
-      setSelectedId(layer.id);
+      if (replacingId) {
+        const previous = layers.find((item) => item.id === replacingId);
+        if (previous) void removeArtworkOriginal(previous.storageKey).catch(() => undefined);
+        setLayers((current) => current.map((item) => item.id === replacingId ? { ...layer, id: item.id, faceId: item.faceId } : item));
+        setSelectedId(replacingId);
+      } else { setLayers((current) => [...current, { ...layer, faceId: activeDesignKey }]); setSelectedId(layer.id); }
       setStep((current) => (current < 2 ? 2 : current));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Não foi possível preparar a imagem.');
     } finally {
       setUploading(false);
       if (fileInput.current) fileInput.current.value = '';
+      if (replaceInput.current) replaceInput.current.value = '';
+      setReplaceLayerId(null);
     }
   }
 
@@ -139,38 +146,29 @@ export default function PersonalizedProductStudio({ product }: { product: Person
     });
   }
 
-  function changeSelectedPosition(patch: { positionX?: number; positionY?: number }) {
-    const targetId = selectedId ?? layers[0]?.id;
-    if (!targetId) return;
-    const target = layers.find((layer) => layer.id === targetId);
-    if (!target) return;
-    updateLayer(targetId, {
-      positionX: patch.positionX ?? target.positionX,
-      positionY: patch.positionY ?? target.positionY,
-    });
-  }
-
   function reset() {
     layers.forEach((layer) => { void removeArtworkOriginal(layer.storageKey).catch(() => undefined); });
     setLayers([]);
     setSelectedId(null);
-    setText('');
+    setFaceTexts({});
     setNotes('');
     setTextSize(18);
     setError('');
-    setCaptureResult(null);
   }
 
   function buildPersonalization(previewImage: string): PersonalizationState {
     const first = layers[0];
+    const textSummary = Object.entries(faceTexts).filter(([, value]) => value.value.trim()).map(([faceId, value]) => `${editorConfig.faces.find((face) => face.id === faceId)?.name ?? faceId}: ${value.value.trim()}`).join(' · ');
     return {
       layers,
-      text: text.trim() || undefined,
+      text: textSummary || undefined,
+      faceTexts,
+      activeFace: activeDesignKey,
       color: color || undefined,
-      textColor: text.trim() ? textColor : undefined,
+      textColor: textSummary ? textColor : undefined,
       model: model || undefined,
       material: material || undefined,
-      font: text.trim() ? font : undefined,
+      font: textSummary ? font : undefined,
       engraving: engraving || undefined,
       notes: notes.trim() || undefined,
       editor: product.editor2d,
@@ -197,24 +195,11 @@ export default function PersonalizedProductStudio({ product }: { product: Person
   }
 
   async function renderPreview() {
-    if (has3D) return '';
     return renderCompositePreview({ editor: editor2d, model, tone: product.tone, layers, text: text.trim(), textColor, font, textSize });
   }
 
   async function addToCart() {
     setError('');
-    if (has3D) {
-      pendingAdd.current = true;
-      setCaptureRequest((value) => value + 1);
-      if (captureTimer.current) window.clearTimeout(captureTimer.current);
-      captureTimer.current = window.setTimeout(() => {
-        if (!pendingAdd.current) return;
-        pendingAdd.current = false;
-        const fallback = layers[0]?.preview ?? '';
-        void renderPreview().then((preview) => finishAdd(preview || fallback)).catch(() => finishAdd(fallback));
-      }, 2400);
-      return;
-    }
     try {
       const preview = await renderPreview();
       finishAdd(preview);
@@ -225,6 +210,7 @@ export default function PersonalizedProductStudio({ product }: { product: Person
 
   const priceLabel = product.demonstrativePrice ? formatCurrency(product.demonstrativePrice) : 'Sob consulta';
   const canAdd = !uploading;
+  const restoreView = () => { setActiveFaceIndex(0); setSelectedId(null); setShowGuides(true); };
 
   return <main className="custom-studio-page">
     <div className="section-shell py-5 sm:py-8">
@@ -236,32 +222,27 @@ export default function PersonalizedProductStudio({ product }: { product: Person
       <div className="custom-studio-layout">
         <section className="custom-preview-panel" aria-label="Prévia da personalização">
           <div className="custom-preview-bar">
-            <span><span className="custom-status-dot" /> {has3D ? 'Visualizador 3D ilustrativo' : 'Editor 2D ilustrativo'}</span>
+            <span className="custom-preview-status"><span className="custom-status-dot" /> {editorConfig.kind === 'mug' ? 'Mockup fotográfico · caneca cerâmica' : editorConfig.kind === 'tshirt' || editorConfig.kind === 'bottle' ? 'Editor 2D · base fotográfica' : 'Editor 2D · base neutra'}</span>
             <div className="viewer-toolbar">
-              {has3D && <>
-                <button type="button" onClick={() => setResetRequest((value) => value + 1)} aria-label="Restaurar câmera"><RotateCcw className="h-4 w-4" /></button>
-                <button type="button" onClick={() => setCaptureRequest((value) => value + 1)} aria-label="Capturar prévia"><Camera className="h-4 w-4" /></button>
-                <button type="button" onClick={() => stageRef.current?.requestFullscreen?.().catch(() => undefined)} aria-label="Tela cheia"><Maximize2 className="h-4 w-4" /></button>
-              </>}
-              <span>{options.printableArea ?? 'Área de personalização'}</span>
+              <div className="viewer-toolbar-actions">
+                <button type="button" onClick={restoreView} aria-label="Restaurar visualização"><RotateCcw className="h-3.5 w-3.5" /><span>Restaurar</span></button>
+                <button type="button" onClick={() => setShowGuides((value) => !value)} aria-label={showGuides ? 'Ocultar guias' : 'Mostrar guias'}><span>{showGuides ? 'Ocultar guias' : 'Mostrar guias'}</span></button>
+              </div>
+              {editorConfig.kind === 'mug' && <div className="mug-presentation-toggle" role="group" aria-label="Modo de visualização da caneca"><button type="button" className={mugPresentation === 'mockup' ? 'active' : ''} onClick={() => setMugPresentation('mockup')}>Visualizar na caneca</button><button type="button" className={mugPresentation === 'flat' ? 'active' : ''} onClick={() => setMugPresentation('flat')}>Visualizar arte completa</button></div>}
+              <span className="viewer-face-label">{activeFace.name} · área de impressão</span>
             </div>
           </div>
-          <div ref={stageRef} className={`custom-product-stage ${has3D ? `custom-product-${product.mockup}` : `custom-product-2d custom-product-${product.mockup}`}`}>
-            {has3D && product.model3d
-              ? <Product3DViewer
-                  product={product.model3d}
-                  color={color}
-                  design={{ layers: layers.map((layer) => ({ preview: layer.preview, positionX: layer.positionX, positionY: layer.positionY, scale: layer.scale, rotation: layer.rotation })), text: text || undefined, textColor, font, positionX: layers[0]?.positionX ?? 50, positionY: layers[0]?.positionY ?? 50, scale: layers[0]?.scale ?? 100, rotation: layers[0]?.rotation ?? 0, textSize }}
-                  captureRequest={captureRequest}
-                  resetRequest={resetRequest}
-                  onCapture={(image) => setCaptureResult({ image, nonce: Date.now() })}
-                  onDesignChange={changeSelectedPosition}
-                />
-              : <ArtworkCanvas editor={editor2d} model={model} tone={product.tone} layers={layers} selectedId={selectedId} text={text} textColor={textColor} font={font} textSize={textSize} onSelect={setSelectedId} onMove={moveLayer} />}
+          <div className="custom-product-stage custom-product-2d">
+            <Product2DStage key={`${product.slug}-${activeDesignKey}`} config={editorConfig} face={resolvedFace} layerFaceId={activeDesignKey} layers={layers} selectedId={selectedId} textLayer={textLayer} showGuides={showGuides} presentation={editorConfig.kind === 'mug' ? mugPresentation : 'mockup'} onSelect={setSelectedId} onMove={moveLayer} onMoveText={(positionX, positionY) => updateText({ positionX, positionY})} />
           </div>
+          {editorConfig.faces.length > 1 && <div className="face-navigation">
+            <button type="button" onClick={() => setActiveFaceIndex((index) => (index + editorConfig.faces.length - 1) % editorConfig.faces.length)} aria-label="Face anterior"><ChevronLeft /></button>
+            <div><div className="face-dots">{editorConfig.faces.map((face, index) => <button type="button" key={face.id} className={index === activeFaceIndex ? 'active' : ''} onClick={() => setActiveFaceIndex(index)} aria-label={`Ver ${face.name}`} />)}</div><strong>{activeFace.name} — Lado {activeFaceIndex + 1} de {editorConfig.faces.length}</strong></div>
+            <button type="button" onClick={() => setActiveFaceIndex((index) => (index + 1) % editorConfig.faces.length)} aria-label="Próxima face"><ChevronRight /></button>
+          </div>}
           <div className="custom-preview-foot">
-            <span>{has3D ? 'Arraste para girar. Use "Arrastar arte" para reposicionar a imagem selecionada.' : 'Arraste as imagens diretamente na área pontilhada do produto.'}</span>
-            <span>{layers.length > 0 ? `${layers.length} de ${MAX_ARTWORK_LAYERS} imagens` : 'Prévia ilustrativa'}</span>
+            <span>Arraste as imagens diretamente dentro da área pontilhada.</span>
+            <span>{layers.length > 0 ? `${layers.length} de ${editorConfig.maxImages} imagens` : 'Prévia ilustrativa'}</span>
           </div>
         </section>
 
@@ -285,24 +266,25 @@ export default function PersonalizedProductStudio({ product }: { product: Person
               <h2>Crie sua composição</h2>
               {options.artwork && <>
                 <input ref={fileInput} id="artwork" type="file" accept="image/png,image/jpeg,image/webp" className="studio-file-input" onChange={(event) => void handleFile(event.target.files?.[0])} />
+                <input ref={replaceInput} type="file" accept="image/png,image/jpeg,image/webp" className="studio-file-input" onChange={(event) => void handleFile(event.target.files?.[0], replaceLayerId)} />
                 <div className="studio-uploader">
-                  <button type="button" className="studio-upload-add" onClick={() => fileInput.current?.click()} disabled={uploading || layers.length >= MAX_ARTWORK_LAYERS}>
+                   <button type="button" className="studio-upload-add" onClick={() => fileInput.current?.click()} disabled={uploading || imageLimitCount >= editorConfig.maxImages}>
                     {layers.length === 0 ? <Upload className="h-5 w-5" /> : <ImagePlus className="h-5 w-5" />}
                     <span>{uploading ? 'Preparando imagem...' : layers.length === 0 ? 'Enviar primeira imagem' : '+ Adicionar outra imagem'}</span>
                   </button>
-                  <div className="studio-upload-meta"><span>PNG, JPG ou WebP · até 8 MB</span><b>{layers.length}/{MAX_ARTWORK_LAYERS}</b></div>
-                  {layers.length >= MAX_ARTWORK_LAYERS && <p className="layer-limit">Limite de 5 imagens atingido. Remova uma imagem para adicionar outra.</p>}
+                   <div className="studio-upload-meta"><span>PNG, JPG ou WebP · até 8 MB · {activeFace.name}</span><b>{imageLimitCount}/{editorConfig.maxImages}</b></div>
+                   {imageLimitCount >= editorConfig.maxImages && <p className="layer-limit">Limite de imagens atingido para esta área.</p>}
                 </div>
               </>}
 
               {layers.length > 0 && <div className="artwork-layers">
-                <div className="artwork-layers-head"><span><Layers className="h-4 w-4" /> Camadas de imagem</span><b>{layers.length}/{MAX_ARTWORK_LAYERS}</b></div>
+                <div className="artwork-layers-head"><span><Layers className="h-4 w-4" /> Camadas de imagem</span><b>{imageLimitCount}/{editorConfig.maxImages}{editorConfig.kind === 'tshirt' || editorConfig.kind === 'bottle' ? ` · ${activeFace.name}` : editorConfig.kind === 'phone-case' ? ` · ${model}` : ''}</b></div>
                 {layers.map((layer, index) => {
                   const selected = selectedId === layer.id;
                   return <div key={layer.id} className={`layer-card ${selected ? 'is-selected' : ''}`}>
                     <button type="button" className="layer-card-head" onClick={() => setSelectedId(selected ? null : layer.id)} aria-expanded={selected}>
                       <span className="layer-thumb"><img src={layer.preview} alt={layer.name} /></span>
-                      <span className="layer-title"><strong>Imagem {index + 1} — {layer.name}</strong><small>X {Math.round(layer.positionX)}% · Y {Math.round(layer.positionY)}% · {Math.round(layerWidthPercent(layer))}% de largura</small></span>
+                      <span className="layer-title"><strong>Imagem {index + 1} — {layer.name}</strong><small>{editorConfig.faces.find((face) => face.id === layer.faceId)?.name ?? activeFace.name} · X {Math.round(layer.positionX)}% · Y {Math.round(layer.positionY)}% · {Math.round(layer.scale)}%</small></span>
                       <ChevronDown className={`h-4 w-4 ${selected ? 'rotate-180' : ''}`} />
                     </button>
                     {selected && <div className="layer-card-body">
@@ -312,14 +294,13 @@ export default function PersonalizedProductStudio({ product }: { product: Person
                         <RangeControl label="Escala" value={layer.scale} min={20} max={220} step={1} suffix="%" onChange={(value) => updateLayer(layer.id, { scale: value })} />
                         <RangeControl label="Rotação" value={layer.rotation} min={-180} max={180} step={1} suffix="°" onChange={(value) => updateLayer(layer.id, { rotation: value })} />
                       </div>
-                      <div className="layer-actions">
-                        <button type="button" onClick={() => updateLayer(layer.id, { rotation: layer.rotation - 15 })} aria-label="Girar 15 graus à esquerda"><RotateCcw className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => centerLayer(layer.id)} aria-label="Centralizar imagem"><AlignCenter className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => updateLayer(layer.id, { rotation: layer.rotation + 15 })} aria-label="Girar 15 graus à direita"><RotateCw className="h-4 w-4" /></button>
-                        <span className="layer-action-divider" />
-                        <button type="button" onClick={() => reorderLayer(layer.id, -1)} disabled={index === 0} aria-label="Mover camada para cima"><ArrowUp className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => reorderLayer(layer.id, 1)} disabled={index === layers.length - 1} aria-label="Mover camada para baixo"><ArrowDown className="h-4 w-4" /></button>
-                        <button type="button" className="danger" onClick={() => removeLayer(layer.id)} aria-label="Remover imagem"><Trash2 className="h-4 w-4" /></button>
+                      <div className="layer-actions layer-image-actions">
+                        <button type="button" title="Restaurar transformações" onClick={() => updateLayer(layer.id, { positionX: 50, positionY: 50, scale: 100, rotation: 0 })} aria-label="Restaurar transformações"><RotateCcw className="h-4 w-4" /></button>
+                        <button type="button" title="Alinhar ao centro" onClick={() => centerLayer(layer.id)} aria-label="Alinhar ao centro"><AlignCenter className="h-4 w-4" /></button>
+                        <button type="button" title="Substituir imagem" onClick={() => { if (window.confirm(`Substituir “${layer.fileName}”?`)) { setReplaceLayerId(layer.id); replaceInput.current?.click(); } }} aria-label="Substituir imagem"><ImagePlus className="h-4 w-4" /></button>
+                        <button type="button" title="Mover camada para frente" onClick={() => reorderLayer(layer.id, -1)} disabled={index === 0} aria-label="Mover camada para frente"><ArrowUp className="h-4 w-4" /></button>
+                        <button type="button" title="Mover camada para trás" onClick={() => reorderLayer(layer.id, 1)} disabled={index === layers.length - 1} aria-label="Mover camada para trás"><ArrowDown className="h-4 w-4" /></button>
+                        <button type="button" title="Excluir imagem" className="danger" onClick={() => removeLayer(layer.id)} aria-label="Excluir imagem"><Trash2 className="h-4 w-4" /></button>
                       </div>
                     </div>}
                   </div>;
@@ -327,11 +308,17 @@ export default function PersonalizedProductStudio({ product }: { product: Person
               </div>}
 
               {options.text && <div className="studio-text-editor">
-                <label htmlFor="custom-text">Adicionar texto<input id="custom-text" value={text} maxLength={options.characterLimit ?? 48} onChange={(event) => setText(event.target.value)} placeholder="Nome, frase ou iniciais" /></label>
+                <label htmlFor="custom-text">Adicionar texto em {activeFace.name}<input id="custom-text" value={text} maxLength={options.characterLimit ?? 48} onChange={(event) => updateText({ value: event.target.value })} placeholder="Nome, frase ou iniciais" /></label>
                 {text && <>
-                  <OptionCards label="Fonte" values={options.fonts} value={font} onChange={setFont} />
-                  <OptionCards label="Cor do texto" values={options.textColors} value={textColor} onChange={setTextColor} colors />
-                  <RangeControl label="Tamanho do texto" value={textSize} min={12} max={32} step={1} suffix=" px" onChange={setTextSize} />
+                  <OptionCards label="Fonte" values={options.fonts} value={textLayer?.font ?? font} onChange={(value) => updateText({ font: value })} />
+                  <OptionCards label="Cor do texto" values={options.textColors} value={textLayer?.color ?? textColor} onChange={(value) => updateText({ color: value })} colors />
+                  <div className="layer-control-grid">
+                    <RangeControl label="Tamanho do texto" value={textLayer?.size ?? textSize} min={12} max={48} step={1} suffix=" px" onChange={(value) => updateText({ size: value })} />
+                     <RangeControl label="Posição X" value={textLayer?.positionX ?? 50} min={resolvedFace.movementLimits.minX} max={resolvedFace.movementLimits.maxX} step={1} suffix="%" onChange={(value) => updateText({ positionX: value })} />
+                     <RangeControl label="Posição Y" value={textLayer?.positionY ?? 50} min={resolvedFace.movementLimits.minY} max={resolvedFace.movementLimits.maxY} step={1} suffix="%" onChange={(value) => updateText({ positionY: value })} />
+                    <RangeControl label="Rotação" value={textLayer?.rotation ?? 0} min={-180} max={180} step={1} suffix="°" onChange={(value) => updateText({ rotation: value })} />
+                  </div>
+                  <div className="layer-actions"><button type="button" onClick={() => updateText({ bold: !textLayer?.bold })} className={textLayer?.bold ? 'active' : ''}>Negrito</button><button type="button" onClick={() => updateText({ positionX: 50, positionY: 50, rotation: 0 })}>Centralizar</button><button type="button" onClick={() => updateText({ value: '' })} className="danger">Excluir texto</button></div>
                 </>}
               </div>}
             </>}
@@ -344,7 +331,8 @@ export default function PersonalizedProductStudio({ product }: { product: Person
                 <p>{layers.length ? `${layers.length} imagem(ns): ${layers.map((layer) => layer.fileName).join(', ')}` : 'Nenhuma imagem enviada'}</p>
                 <p>{text ? `Texto: ${text}` : 'Nenhum texto adicionado'}</p>
               </div>
-              <div className="custom-notice">A prévia é ilustrativa. A arte final e a compatibilidade passam por aprovação antes da produção.</div>
+                <div className="custom-notice">A prévia é ilustrativa. A arte final e a compatibilidade passam por aprovação antes da produção.</div>
+                <button type="button" className="custom-preview-result" onClick={() => setPreviewOpen(true)}><Eye className="h-4 w-4" /> Visualizar resultado</button>
               <label className="custom-notes">Observações<textarea value={notes} onChange={(event) => setNotes(event.target.value)} maxLength={300} placeholder="Alguma orientação para a equipe?" rows={3} /></label>
               <button type="button" onClick={reset} className="custom-reset"><RotateCcw className="h-4 w-4" /> Restaurar criação</button>
             </>}
@@ -366,6 +354,14 @@ export default function PersonalizedProductStudio({ product }: { product: Person
           </div>
         </section>
       </div>
+      {previewOpen && <div className="editor-result-modal" role="dialog" aria-modal="true" aria-label="Resultado da personalização">
+        <div className="editor-result-backdrop" onClick={() => setPreviewOpen(false)} />
+        <section className="editor-result-panel">
+          <header><div><p>PRÉVIA FINAL</p><h2>{product.name}</h2><span>{model && `${model} · `}Todas as faces sem guias de edição.</span></div><button type="button" onClick={() => setPreviewOpen(false)} aria-label="Voltar à edição"><X /></button></header>
+          <div className="editor-result-faces">{editorConfig.faces.map((face) => { const previewFace = resolveEditorFace(editorConfig, face, model); const previewKey = editorConfig.kind === 'phone-case' ? `${face.id}:${model}` : face.id; return <article key={face.id}><h3>{face.name}</h3><Product2DStage config={editorConfig} face={previewFace} layerFaceId={previewKey} layers={layers} selectedId={null} textLayer={faceTexts[previewKey]} showGuides={false} readOnly onSelect={() => undefined} onMove={() => undefined} onMoveText={() => undefined} /></article>; })}</div>
+          <footer><button type="button" className="premium-secondary" onClick={() => setPreviewOpen(false)}>Voltar à edição</button></footer>
+        </section>
+      </div>}
     </div>
   </main>;
 }
@@ -376,5 +372,6 @@ function OptionCards({ label, values, value, onChange, colors = false }: { label
 }
 
 function RangeControl({ label, value, min, max, step = 1, suffix, onChange }: { label: string; value: number; min: number; max: number; step?: number; suffix: string; onChange: (value: number) => void }) {
-  return <label className="studio-range"><span>{label}<b>{Math.round(value)}{suffix}</b></span><input type="range" min={min} max={max} step={step} value={value} onChange={(event) => onChange(Number(event.target.value))} /></label>;
+  const change = (next: number) => onChange(clamp(Number.isFinite(next) ? next : value, min, max));
+  return <label className="studio-range"><span>{label}<b>{Math.round(value)}{suffix}</b></span><div className="studio-range-inputs"><input className="studio-range-slider" type="range" min={min} max={max} step={step} value={value} onChange={(event) => change(Number(event.target.value))} /><input className="studio-range-number" aria-label={`${label} valor numérico`} type="number" min={min} max={max} step={step} value={Math.round(value)} onChange={(event) => change(Number(event.target.value))} /></div></label>;
 }
