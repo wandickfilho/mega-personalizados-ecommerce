@@ -18,7 +18,7 @@ export const SITE = {
 } as const;
 
 /** Número oficial do WhatsApp (apenas dígitos, com DDI). Vazio = ainda não configurado. */
-export const WHATSAPP_NUMBER = '';
+export const WHATSAPP_NUMBER = '5583993250859';
 
 export const WHATSAPP_ENABLED = /^\d{12,15}$/.test(WHATSAPP_NUMBER);
 
@@ -54,3 +54,7 @@ export const USING_SAMPLE_DATA = true;
 /** Mensagem padrão para contatos que não partem de um produto específico. */
 export const WHATSAPP_GENERAL_MESSAGE =
   'Olá! Vim pelo site da Mega Personalizados e gostaria de solicitar um orçamento.';
+
+/** Mensagem para solicitação de personalização assistida por vendedor (Home). */
+export const CUSTOM_ORDER_PERSONALIZATION_MESSAGE =
+  'Olá! Vim pelo site da Mega Eletrônicos & Personalizados.\n\nGostaria de fazer um produto personalizado diretamente com um vendedor.\n\nPosso enviar minha ideia e algumas imagens de referência para conversarmos sobre a personalização?';
